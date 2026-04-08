@@ -6,11 +6,11 @@ import '../widgets/custom_back_button.dart';
 import '../controllers/home_controller.dart';
 import 'allocation_success_view.dart';
 import 'gps_scan_device_view.dart';
-import 'camera_details_view.dart';
 import 'speed_governor_details_view.dart';
+import 'camera_details_view.dart';
 
-class CameraPreviewView extends StatelessWidget {
-  const CameraPreviewView({super.key});
+class SpeedGovernorPreviewView extends StatelessWidget {
+  const SpeedGovernorPreviewView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -62,9 +62,9 @@ class CameraPreviewView extends StatelessWidget {
                     children: [
                       _buildInfoRow("Total Devices", "100"),
                       height15,
-                      _buildInfoRow("New Camera", "80"),
+                      _buildInfoRow("New Speed Governor", "80"),
                       height15,
-                      _buildInfoRow("Repaired Camera", "20"),
+                      _buildInfoRow("Repaired Speed Governor", "20"),
                     ],
                   ),
                 ),

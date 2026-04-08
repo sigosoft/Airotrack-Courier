@@ -1,14 +1,14 @@
 // ignore_for_file: deprecated_member_use
 
-import 'package:airotrack_courier/views/preview_view.dart';
+import 'package:airotrack_courier/views/gps_preview_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import '../controllers/scan_device_controller.dart';
 import '../utils/app_colors.dart';
 
-class ScanDeviceView extends GetView<ScanDeviceController> {
-  const ScanDeviceView({super.key});
+class GpsScanDeviceView extends GetView<ScanDeviceController> {
+  const GpsScanDeviceView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -106,7 +106,7 @@ class ScanDeviceView extends GetView<ScanDeviceController> {
                     icon: Icons.visibility_outlined,
                     label: 'Preview',
                     onPressed: () {
-                    Navigator.push(context,MaterialPageRoute(builder:(context)=>PreviewView()));
+                    Navigator.push(context,MaterialPageRoute(builder:(context)=>GpsPreviewView()));
                     },
                     width: width * 0.42,
                   ),

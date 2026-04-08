@@ -10,6 +10,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     final mediaQuery = MediaQuery.of(context);
     final width = mediaQuery.size.width;
+    final height = mediaQuery.size.height;
 
     return AppBar(
       backgroundColor: AppColors.white,
@@ -26,6 +27,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       title: Image.asset(
         'lib/assets/images/applogo.png',
         width: width * 0.25, // Using mediaquery as requested
+        height: height * 0.10,
         fit: BoxFit.contain,
       ),
     );
