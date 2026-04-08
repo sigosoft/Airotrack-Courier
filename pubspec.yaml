@@ -10,6 +10,7 @@ dependencies:
   flutter:
     sdk: flutter
   get: ^4.6.6
+  mobile_scanner: ^5.1.1
 
 dev_dependencies:
   flutter_test:

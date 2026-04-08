@@ -1,8 +1,13 @@
+import 'package:airotrack_courier/views/about_us.dart';
+import 'package:airotrack_courier/views/contact_us_view.dart';
+import 'package:airotrack_courier/views/privacy_policy.dart';
+import 'package:airotrack_courier/views/terms_conditions.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/home_controller.dart';
 import '../utils/app_colors.dart';
 import '../widgets/custom_app_bar.dart';
+import 'scan_device_view.dart';
 
 class HomeView extends StatelessWidget {
   const HomeView({super.key});
@@ -20,7 +25,134 @@ class HomeView extends StatelessWidget {
     return Scaffold(
       key: scaffoldKey,
       appBar: CustomAppBar(scaffoldKey: scaffoldKey),
-      drawer: const Drawer(), // Simple empty drawer to match the menu icon
+      drawer: Drawer(
+        backgroundColor: AppColors.white,
+        elevation: 0,
+        child: Column(
+          children: [
+            // Drawer Header
+            SafeArea(
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      IconButton(
+                        icon: const Icon(
+                          Icons.close,
+                          color: Colors.grey,
+                          size: 28,
+                        ),
+                        onPressed: () => Get.back(),
+                      ),
+                    ],
+                  ),
+                  Center(
+                    child: Image.asset(
+                      'lib/assets/images/applogo.png',
+                      height: 160,
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  const Divider(
+                    thickness: 1,
+                    color: Color(0xFFF1F1F1),
+                    height: 1,
+                  ),
+                ],
+              ),
+            ),
+            // Drawer Items
+            Expanded(
+              child: ListView(
+                padding: EdgeInsets.zero,
+                children: [
+                  _buildDrawerItem(
+                    icon: Icons.contact_support_outlined,
+                    label: 'Contact Us',
+                    onTap: () => Get.to(()=>ContactUsView()),
+                  ),
+                  const Divider(
+                    height: 1,
+                    color: Color(0xFFF1F1F1),
+                    indent: 16,
+                    endIndent: 16,
+                  ),
+                  _buildDrawerItem(
+                    icon: Icons.calendar_today_outlined,
+                    label: 'Terms & Conditions',
+                    onTap: () => Get.to(()=>TermsAndConditionsView()),
+                  ),
+                  const Divider(
+                    height: 1,
+                    color: Color(0xFFF1F1F1),
+                    indent: 16,
+                    endIndent: 16,
+                  ),
+                  _buildDrawerItem(
+                    icon: Icons.shield_outlined,
+                    label: 'Privacy Policy',
+                    onTap: () => Get.to(()=>PrivacyPolicyView()),
+                  ),
+                  const Divider(
+                    height: 1,
+                    color: Color(0xFFF1F1F1),
+                    indent: 16,
+                    endIndent: 16,
+                  ),
+                  _buildDrawerItem(
+                    icon: Icons.badge_outlined,
+                    label: 'About Us',
+                    onTap: () => Get.to(()=>AboutUsView()),
+                  ),
+                  const Divider(
+                    height: 1,
+                    color: Color(0xFFF1F1F1),
+                    indent: 16,
+                    endIndent: 16,
+                  ),
+                  _buildDrawerItem(
+                    icon: Icons.logout_outlined,
+                    label: 'Logout',
+                    isLogout: true,
+                    onTap: () => Get.back(),
+                  ),
+                ],
+              ),
+            ),
+            // Drawer Footer
+            Padding(
+              padding: const EdgeInsets.only(bottom: 20),
+              child: Column(
+                children: [
+                  const Text(
+                    'V1.0.0',
+                    style: TextStyle(color: Colors.grey, fontSize: 12),
+                  ),
+                  const SizedBox(height: 5),
+                  TextButton(
+                    onPressed: () {},
+                    style: TextButton.styleFrom(
+                      padding: EdgeInsets.zero,
+                      minimumSize: const Size(0, 0),
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
+                    child: const Text(
+                      'Check for updates',
+                      style: TextStyle(
+                        color: Colors.black54,
+                        fontSize: 13,
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
       backgroundColor: AppColors.white,
       body: SingleChildScrollView(
         child: Padding(
@@ -181,15 +313,300 @@ class HomeView extends StatelessWidget {
                       }).toList(),
                       onChanged: (String? newValue) {
                         controller.updateSelectedUserType(newValue);
+                        controller.searchController
+                            .clear(); // Clear search on type change
                       },
                     ),
                   ),
                 ),
               ),
+              // Dealer/Technician Search Section (Conditional)
+              Obx(() {
+                String? selectedType =
+                    controller.userProfile.value.selectedUserType;
+                if (selectedType == 'Dealer' || selectedType == 'Technician') {
+                  bool isDealer = selectedType == 'Dealer';
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(height: height * 0.02),
+                      RichText(
+                        text: TextSpan(
+                          text: isDealer ? 'Dealer' : 'Technician',
+                          style: const TextStyle(
+                            color: AppColors.black,
+                            fontSize: 18,
+                          ),
+                          children: const [
+                            TextSpan(
+                              text: '*',
+                              style: TextStyle(
+                                color: AppColors.red,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(height: height * 0.015),
+                      TextFormField(
+                        key: controller.searchFieldKey,
+                        controller: controller.searchController,
+                        focusNode: controller.searchFocusNode,
+                        onChanged: (value) => controller.filterResults(value),
+                        autocorrect: false,
+                        decoration: InputDecoration(
+                          hintText: isDealer
+                              ? "Search Dealer"
+                              : "Search Technician",
+                          hintStyle: TextStyle(
+                            color: Colors.grey.shade400,
+                            fontSize: 16,
+                          ),
+                          suffixIcon: controller.isDealerSelected.value
+                              ? null
+                              : const Icon(
+                                  Icons.search,
+                                  color: AppColors.black,
+                                  size: 24,
+                                ),
+                          contentPadding: EdgeInsets.symmetric(
+                            horizontal: width * 0.03,
+                            vertical: 18,
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide(color: Colors.grey.shade300),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide(color: Colors.grey.shade300),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: const BorderSide(
+                              color: AppColors.primaryBlue,
+                            ),
+                          ),
+                        ),
+                      ),
+                      // Search Results List
+                      Obx(() {
+                        if (controller.showResults.value) {
+                          return Container(
+                            margin: const EdgeInsets.only(top: 5),
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(8),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.05),
+                                  blurRadius: 10,
+                                  spreadRadius: 2,
+                                ),
+                              ],
+                            ),
+                            child: ListView.builder(
+                              padding: EdgeInsets.zero,
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemCount: controller.filteredResults.length,
+                              itemBuilder: (context, index) {
+                                final result =
+                                    controller.filteredResults[index];
+                                return ListTile(
+                                  title: Text(
+                                    result,
+                                    style: const TextStyle(fontSize: 16),
+                                  ),
+                                  onTap: () => controller.selectDealer(result),
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                  ),
+                                  dense: true,
+                                );
+                              },
+                            ),
+                          );
+                        }
+                        return const SizedBox.shrink();
+                      }),
+                    ],
+                  );
+                }
+                return const SizedBox.shrink();
+              }),
+
+              // Device Type Section (Conditional on SELECTION)
+              Obx(() {
+                if (controller.isDealerSelected.value) {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(height: height * 0.02),
+                      RichText(
+                        text: const TextSpan(
+                          text: 'Device Type',
+                          style: TextStyle(
+                            color: AppColors.black,
+                            fontSize: 18,
+                          ),
+                          children: [
+                            TextSpan(
+                              text: '*',
+                              style: TextStyle(
+                                color: AppColors.red,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(height: height * 0.015),
+                      Container(
+                        padding: EdgeInsets.symmetric(horizontal: width * 0.03),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey.shade300),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Obx(
+                          () => DropdownButtonHideUnderline(
+                            child: DropdownButton<String>(
+                              isExpanded: true,
+                              value: controller.selectedDeviceType.value.isEmpty
+                                  ? null
+                                  : controller.selectedDeviceType.value,
+                              hint: Text(
+                                "Select Device Type",
+                                style: TextStyle(
+                                  color: Colors.grey.shade500,
+                                  fontSize: 16,
+                                ),
+                              ),
+                              icon: const Icon(
+                                Icons.keyboard_arrow_down,
+                                color: AppColors.black,
+                              ),
+                              items: controller.deviceTypeOptions.map((
+                                String value,
+                              ) {
+                                return DropdownMenuItem<String>(
+                                  value: value,
+                                  child: Text(value),
+                                );
+                              }).toList(),
+                              onChanged: (String? newValue) {
+                                if (newValue != null) {
+                                  controller.updateDeviceType(newValue);
+                                }
+                              },
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: height * 0.05),
+                      Obx(
+                        () => controller.selectedDeviceType.value.isNotEmpty
+                            ? Column(
+                                children: [
+                                  if (controller.selectedDeviceType.value ==
+                                      "GPS") ...[
+                                    SizedBox(
+                                      width: double.infinity,
+                                      height: 55,
+                                      child: ElevatedButton(
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor:
+                                              AppColors.primaryBlue,
+                                          foregroundColor: Colors.white,
+                                          elevation: 0,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              10,
+                                            ),
+                                          ),
+                                        ),
+                                        onPressed: () => Get.to(
+                                          () => const ScanDeviceView(),
+                                        ),
+                                        child: const Text(
+                                          "Submit and Scan Device",
+                                          style: TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    SizedBox(height: height * 0.015),
+                                  ],
+                                  SizedBox(
+                                    width: double.infinity,
+                                    height: 55,
+                                    child: ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: AppColors.primaryBlue,
+                                        foregroundColor: Colors.white,
+                                        elevation: 0,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            10,
+                                          ),
+                                        ),
+                                      ),
+                                      onPressed: () {
+                                        // Handle "Submit and Enter Details" flow
+                                      },
+                                      child: const Text(
+                                        "Submit and Enter Details",
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              )
+                            : const SizedBox.shrink(),
+                      ),
+                      SizedBox(height: height * 0.02),
+                    ],
+                  );
+                }
+                return const SizedBox.shrink();
+              }),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildDrawerItem({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+    bool isLogout = false,
+  }) {
+    Color itemColor = isLogout ? Colors.red : Colors.black87;
+    Color iconColor = isLogout ? Colors.red : Colors.grey.shade600;
+
+    return ListTile(
+      leading: Icon(icon, color: iconColor, size: 24),
+      title: Text(
+        label,
+        style: TextStyle(
+          color: itemColor,
+          fontSize: 16,
+          fontWeight: FontWeight.w400,
+        ),
+      ),
+      trailing: Icon(Icons.chevron_right, color: iconColor, size: 20),
+      onTap: onTap,
     );
   }
 }
