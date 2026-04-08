@@ -1,3 +1,6 @@
+// ignore_for_file: deprecated_member_use
+
+import 'package:airotrack_courier/views/login_view.dart';
 import 'package:airotrack_courier/views/about_us.dart';
 import 'package:airotrack_courier/views/contact_us_view.dart';
 import 'package:airotrack_courier/views/privacy_policy.dart';
@@ -8,13 +11,13 @@ import '../controllers/home_controller.dart';
 import '../utils/app_colors.dart';
 import '../widgets/custom_app_bar.dart';
 import 'scan_device_view.dart';
+import 'camera_details_view.dart';
 
-class HomeView extends StatelessWidget {
+class HomeView extends GetView<HomeController> {
   const HomeView({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final HomeController controller = Get.put(HomeController());
     final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
     // MediaQuery for responsive design
@@ -71,7 +74,7 @@ class HomeView extends StatelessWidget {
                   _buildDrawerItem(
                     icon: Icons.contact_support_outlined,
                     label: 'Contact Us',
-                    onTap: () => Get.to(()=>ContactUsView()),
+                    onTap: () => Get.to(() => ContactUsView()),
                   ),
                   const Divider(
                     height: 1,
@@ -82,7 +85,7 @@ class HomeView extends StatelessWidget {
                   _buildDrawerItem(
                     icon: Icons.calendar_today_outlined,
                     label: 'Terms & Conditions',
-                    onTap: () => Get.to(()=>TermsAndConditionsView()),
+                    onTap: () => Get.to(() => TermsAndConditionsView()),
                   ),
                   const Divider(
                     height: 1,
@@ -93,7 +96,7 @@ class HomeView extends StatelessWidget {
                   _buildDrawerItem(
                     icon: Icons.shield_outlined,
                     label: 'Privacy Policy',
-                    onTap: () => Get.to(()=>PrivacyPolicyView()),
+                    onTap: () => Get.to(() => PrivacyPolicyView()),
                   ),
                   const Divider(
                     height: 1,
@@ -104,7 +107,7 @@ class HomeView extends StatelessWidget {
                   _buildDrawerItem(
                     icon: Icons.badge_outlined,
                     label: 'About Us',
-                    onTap: () => Get.to(()=>AboutUsView()),
+                    onTap: () => Get.to(() => AboutUsView()),
                   ),
                   const Divider(
                     height: 1,
@@ -116,7 +119,100 @@ class HomeView extends StatelessWidget {
                     icon: Icons.logout_outlined,
                     label: 'Logout',
                     isLogout: true,
-                    onTap: () => Get.back(),
+                    onTap: () {
+                      Get.back(); // Close the drawer first
+                      Get.dialog(
+                        Dialog(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 30,
+                            ),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.logout_rounded,
+                                  size: 80,
+                                  color: AppColors.cardBlue.withOpacity(0.8),
+                                ),
+                                const SizedBox(height: 25),
+                                const Text(
+                                  "Are you sure you want to logout?",
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    color: Colors.black87,
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                ),
+                                const SizedBox(height: 35),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: OutlinedButton(
+                                        onPressed: () => Get.back(),
+                                        style: OutlinedButton.styleFrom(
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical: 14,
+                                          ),
+                                          side: BorderSide(
+                                            color: Colors.grey.shade300,
+                                          ),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              10,
+                                            ),
+                                          ),
+                                        ),
+                                        child: const Text(
+                                          "No",
+                                          style: TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 16,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 15),
+                                    Expanded(
+                                      child: ElevatedButton(
+                                        onPressed: () {
+                                          Get.delete<HomeController>(force: true);
+                                          Get.offAll(() => const LoginView());
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: AppColors.cardBlue,
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical: 14,
+                                          ),
+                                          elevation: 0,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              10,
+                                            ),
+                                          ),
+                                        ),
+                                        child: const Text(
+                                          "Yes",
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 16,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+                    },
                   ),
                 ],
               ),
@@ -558,7 +654,19 @@ class HomeView extends StatelessWidget {
                                         ),
                                       ),
                                       onPressed: () {
-                                        // Handle "Submit and Enter Details" flow
+                                        if (controller.selectedDeviceType
+                                                .value ==
+                                            'Camera') {
+                                          Get.to(
+                                            () => const CameraDetailsView(),
+                                          );
+                                        } else {
+                                          Get.snackbar(
+                                            'Info',
+                                            'Navigation for ${controller.selectedDeviceType.value} is not implemented yet.',
+                                            snackPosition: SnackPosition.BOTTOM,
+                                          );
+                                        }
                                       },
                                       child: const Text(
                                         "Submit and Enter Details",
