@@ -1,5 +1,6 @@
 // ignore_for_file: deprecated_member_use
 
+import 'package:airotrack_courier/utils/width_height.dart';
 import 'package:airotrack_courier/views/login_view.dart';
 import 'package:airotrack_courier/views/about_us.dart';
 import 'package:airotrack_courier/views/contact_us_view.dart';
@@ -10,8 +11,10 @@ import 'package:get/get.dart';
 import '../controllers/home_controller.dart';
 import '../utils/app_colors.dart';
 import '../widgets/custom_app_bar.dart';
-import 'scan_device_view.dart';
+import 'gps_scan_device_view.dart';
 import 'camera_details_view.dart';
+import 'speed_governor_details_view.dart';
+import 'gps_details_view.dart';
 
 class HomeView extends GetView<HomeController> {
   const HomeView({super.key});
@@ -181,7 +184,9 @@ class HomeView extends GetView<HomeController> {
                                     Expanded(
                                       child: ElevatedButton(
                                         onPressed: () {
-                                          Get.delete<HomeController>(force: true);
+                                          Get.delete<HomeController>(
+                                            force: true,
+                                          );
                                           Get.offAll(() => const LoginView());
                                         },
                                         style: ElevatedButton.styleFrom(
@@ -603,7 +608,7 @@ class HomeView extends GetView<HomeController> {
                           ),
                         ),
                       ),
-                      SizedBox(height: height * 0.05),
+                      height50,
                       Obx(
                         () => controller.selectedDeviceType.value.isNotEmpty
                             ? Column(
@@ -626,7 +631,7 @@ class HomeView extends GetView<HomeController> {
                                           ),
                                         ),
                                         onPressed: () => Get.to(
-                                          () => const ScanDeviceView(),
+                                          () => const GpsScanDeviceView(),
                                         ),
                                         child: const Text(
                                           "Submit and Scan Device",
@@ -654,11 +659,27 @@ class HomeView extends GetView<HomeController> {
                                         ),
                                       ),
                                       onPressed: () {
-                                        if (controller.selectedDeviceType
+                                        if (controller
+                                                .selectedDeviceType
                                                 .value ==
                                             'Camera') {
                                           Get.to(
                                             () => const CameraDetailsView(),
+                                          );
+                                        } else if (controller
+                                                .selectedDeviceType
+                                                .value ==
+                                            'Speed Governor') {
+                                          Get.to(
+                                            () =>
+                                                const SpeedGovernorDetailsView(),
+                                          );
+                                        } else if (controller
+                                                .selectedDeviceType
+                                                .value ==
+                                            'GPS') {
+                                          Get.to(
+                                            () => const GPSDetailsView(),
                                           );
                                         } else {
                                           Get.snackbar(

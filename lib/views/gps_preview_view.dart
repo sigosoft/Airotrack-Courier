@@ -4,8 +4,8 @@ import 'package:airotrack_courier/views/device_preview_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-class PreviewView extends StatelessWidget {
-  const PreviewView({super.key});
+class GpsPreviewView extends StatelessWidget {
+  const GpsPreviewView({super.key});
 
   @override
   Widget build(BuildContext context) {

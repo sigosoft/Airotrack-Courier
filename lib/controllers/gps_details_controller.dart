@@ -1,8 +1,8 @@
+import 'package:airotrack_courier/views/gps_preview_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../views/camera_preview_view.dart';
 
-class CameraDetailsController extends GetxController {
+class GPSDetailsController extends GetxController {
   final serialController = TextEditingController();
   final amountController = TextEditingController();
 
@@ -14,19 +14,21 @@ class CameraDetailsController extends GetxController {
   }
 
   void onPreview() {
-    Get.to(() => const CameraPreviewView());
+    Get.to(() => const GpsPreviewView());
   }
 
   void onNext() {
-    // Logic for Next button
     if (serialController.text.isEmpty || amountController.text.isEmpty) {
-      Get.snackbar('Error', 'Please fill in all required fields',
+      Get.snackbar(
+        'Error', 
+        'Please fill in all required fields',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red.withOpacity(0.1),
-        colorText: Colors.red);
+        colorText: Colors.red
+      );
       return;
     }
-    // Navigate to next screen
-    Get.to(() => CameraPreviewView());
+    // Navigate to success screen
+    Get.to(() => const GpsPreviewView());
   }
 }
