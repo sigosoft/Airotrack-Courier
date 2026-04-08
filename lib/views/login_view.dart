@@ -3,6 +3,7 @@ import 'package:airotrack_courier/utils/width_height.dart';
 import 'package:airotrack_courier/views/home_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../bindings/home_binding.dart';
 
 class LoginView extends StatelessWidget {
   const LoginView({super.key});
@@ -114,7 +115,7 @@ class LoginView extends StatelessWidget {
                     ),
                   ),
                   onPressed: () {
-                    Get.to(() => const HomeView());
+                    Get.to(() => const HomeView(), binding: HomeBinding());
                   },
                   child: const Text(
                     "Continue",

@@ -1,6 +1,8 @@
 import 'package:airotrack_courier/utils/app_colors.dart';
 import 'package:airotrack_courier/utils/width_height.dart';
+import 'package:airotrack_courier/views/device_preview_view.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class PreviewView extends StatelessWidget {
   const PreviewView({super.key});
@@ -102,7 +104,7 @@ class PreviewView extends StatelessWidget {
                   ),
                 ),
                 onPressed: () {
-                  // TODO: Submit logic
+                  Get.to(() => const DevicePreviewView());
                 },
                 child: const Text(
                   "Submit",
