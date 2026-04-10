@@ -9,9 +9,9 @@ class GpsDevicePreviewView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final mediaQuery = MediaQuery.of(context);
-    final width = mediaQuery.size.width;
-    final height = mediaQuery.size.height;
+    // final mediaQuery = MediaQuery.of(context);
+    // final width = mediaQuery.size.width;
+    // final height = mediaQuery.size.height;
 
     return Scaffold(
       backgroundColor: AppColors.white,

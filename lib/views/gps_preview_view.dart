@@ -5,7 +5,6 @@ import '../utils/app_colors.dart';
 import '../utils/width_height.dart';
 import '../widgets/custom_back_button.dart';
 import '../controllers/home_controller.dart';
-import 'allocation_success_view.dart';
 
 class GpsPreviewView extends StatelessWidget {
   const GpsPreviewView({super.key});
