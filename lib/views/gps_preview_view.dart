@@ -12,7 +12,7 @@ class GpsPreviewView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final HomeController homeController = Get.find<HomeController>();
-    
+
     return Scaffold(
       backgroundColor: AppColors.white,
       appBar: AppBar(
@@ -36,16 +36,18 @@ class GpsPreviewView extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Obx(() => Text(
-                  homeController.selectedDealerName.value.isEmpty 
-                      ? "Dealer 1" 
-                      : homeController.selectedDealerName.value,
-                  style: const TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF333333),
+                Obx(
+                  () => Text(
+                    homeController.selectedDealerName.value.isEmpty
+                        ? "Dealer 1"
+                        : homeController.selectedDealerName.value,
+                    style: const TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF333333),
+                    ),
                   ),
-                )),
+                ),
                 height20,
                 Container(
                   padding: const EdgeInsets.all(20),
@@ -75,9 +77,9 @@ class GpsPreviewView extends StatelessWidget {
               ],
             ),
           ),
-          
+
           // Bottom Buttons
-           Align(
+          Align(
             alignment: Alignment.bottomCenter,
             child: Container(
               padding: const EdgeInsets.all(20),
@@ -99,10 +101,7 @@ class GpsPreviewView extends StatelessWidget {
                   ),
                   child: const Text(
                     'Submit',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                 ),
               ),
@@ -139,14 +138,8 @@ class GpsPreviewView extends StatelessWidget {
   InputDecoration _buildInputDecoration(String hint) {
     return InputDecoration(
       hintText: hint,
-      hintStyle: TextStyle(
-        color: Colors.grey.shade400,
-        fontSize: 16,
-      ),
-      contentPadding: const EdgeInsets.symmetric(
-        horizontal: 16,
-        vertical: 18,
-      ),
+      hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 16),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
         borderSide: BorderSide(color: Colors.grey.shade300),
@@ -157,9 +150,7 @@ class GpsPreviewView extends StatelessWidget {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(
-          color: AppColors.primaryBlue,
-        ),
+        borderSide: const BorderSide(color: AppColors.primaryBlue),
       ),
     );
   }
@@ -173,7 +164,7 @@ class GpsPreviewView extends StatelessWidget {
             label,
             style: const TextStyle(
               fontSize: 16,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w600,
               color: Color(0xFF444444),
             ),
           ),
@@ -195,7 +186,7 @@ class GpsPreviewView extends StatelessWidget {
             value,
             style: const TextStyle(
               fontSize: 16,
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.w500,
               color: Color(0xFF444444),
             ),
           ),

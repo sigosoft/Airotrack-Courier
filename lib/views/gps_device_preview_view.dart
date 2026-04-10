@@ -165,7 +165,7 @@ class GpsDevicePreviewView extends StatelessWidget {
             label,
             style: const TextStyle(
               fontSize: 16,
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.w400,
               color: Color(0xFF444444),
             ),
           ),
@@ -176,7 +176,7 @@ class GpsDevicePreviewView extends StatelessWidget {
             ":",
             style: TextStyle(
               fontSize: 16,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w500,
               color: Color(0xFF444444),
             ),
           ),
@@ -187,7 +187,7 @@ class GpsDevicePreviewView extends StatelessWidget {
             value,
             style: const TextStyle(
               fontSize: 16,
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.w500,
               color: Color(0xFF444444),
             ),
           ),
