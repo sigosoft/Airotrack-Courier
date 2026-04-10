@@ -15,7 +15,6 @@ class GpsScanDeviceView extends GetView<ScanDeviceController> {
     if (!Get.isRegistered<ScanDeviceController>()) {
       Get.lazyPut(() => ScanDeviceController());
     }
-
     final mediaQuery = MediaQuery.of(context);
     final width = mediaQuery.size.width;
     final height = mediaQuery.size.height;

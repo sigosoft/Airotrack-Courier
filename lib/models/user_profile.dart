@@ -5,6 +5,7 @@ class UserProfile {
   final List<String> userTypeOptions;
   String selectedUserType;
 
+
   UserProfile({
     required this.name,
     required this.date,

@@ -11,6 +11,7 @@ import 'speed_governor_details_view.dart';
 class AllocationPreviewView extends StatelessWidget {
   const AllocationPreviewView({super.key});
 
+
   @override
   Widget build(BuildContext context) {
     final HomeController homeController = Get.find<HomeController>();

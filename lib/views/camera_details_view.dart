@@ -101,7 +101,6 @@ class CameraDetailsView extends StatelessWidget {
               color: AppColors.white,
               child: Row(
                 children: [
-                  
                   // Preview Button
                   Expanded(
                     child: SizedBox(

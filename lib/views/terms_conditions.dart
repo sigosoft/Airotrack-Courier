@@ -24,7 +24,6 @@ class TermsAndConditionsView extends StatelessWidget {
         ),
         centerTitle: true,
       ),
-      
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20.0),
         child: Column(

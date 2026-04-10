@@ -22,5 +22,4 @@ class MainApp extends StatelessWidget {
       home: const LoginView(),
     );
   }
-  
 }

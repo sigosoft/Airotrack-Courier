@@ -81,7 +81,6 @@ class _AllocationSuccessViewState extends State<AllocationSuccessView>
                             ),
                           ),
                         ),
-                        
                         // Inner circle (Slight pulse)
                         Transform.scale(
                           scale: 1.0 + (_animation.value - 1.0) * 0.3,

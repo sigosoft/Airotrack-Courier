@@ -45,7 +45,6 @@ class CameraDetailsController extends GetxController {
       homeController.repairedCameraCount.value++;
     }
     
-
     // Clear fields for next entry
     serialController.clear();
     amountController.clear();

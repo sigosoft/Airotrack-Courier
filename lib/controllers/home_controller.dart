@@ -128,7 +128,6 @@ class HomeController extends GetxController {
     repairedGpsCount.value = 0;
   }
 
-
   // Reset UI fields but KEEP device counts
   void resetAll() {
     selectedDealerName.value = '';

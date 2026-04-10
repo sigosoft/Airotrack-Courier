@@ -22,8 +22,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
             scaffoldKey!.currentState?.openDrawer();
           }
         },
-      ),
-      
+      ),     
       centerTitle: true,
       title: Image.asset(
         'lib/assets/images/applogo.png',

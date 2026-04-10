@@ -12,7 +12,6 @@ class GPSDetailsView extends StatelessWidget {
     final mediaQuery = MediaQuery.of(context);
     final width = mediaQuery.size.width;
     final height = mediaQuery.size.height;
-
     return Scaffold(
       backgroundColor: AppColors.white,
       appBar: AppBar(

@@ -314,8 +314,7 @@ class InvoiceView extends StatelessWidget {
                       // Reset data for fresh allocation
                       Get.find<HomeController>().resetAll();
                       Get.offAll(() => const HomeView(), binding: HomeBinding());
-                    },
-                    
+                    },                   
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primaryBlue,
                       foregroundColor: Colors.white,
