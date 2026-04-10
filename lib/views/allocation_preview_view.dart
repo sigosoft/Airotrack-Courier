@@ -5,16 +5,14 @@ import '../utils/width_height.dart';
 import '../widgets/custom_back_button.dart';
 import '../controllers/home_controller.dart';
 import 'allocation_success_view.dart';
-import 'gps_scan_device_view.dart';
 import 'camera_details_view.dart';
 import 'speed_governor_details_view.dart';
 
-class CameraPreviewView extends StatelessWidget {
-  const CameraPreviewView({super.key});
+class AllocationPreviewView extends StatelessWidget {
+  const AllocationPreviewView({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // Access HomeController to get the dealer name
     final HomeController homeController = Get.find<HomeController>();
     
     return Scaffold(
@@ -55,18 +53,47 @@ class CameraPreviewView extends StatelessWidget {
                   padding: const EdgeInsets.all(20),
                   width: double.infinity,
                   decoration: BoxDecoration(
-                    color: Colors.grey.shade100, // Light grey background
+                    color: Colors.grey.shade100,
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Column(
-                    children: [
-                      _buildInfoRow("Total Devices", "100"),
-                      height15,
-                      _buildInfoRow("New Camera", "80"),
-                      height15,
-                      _buildInfoRow("Repaired Camera", "20"),
-                    ],
-                  ),
+                  child: Obx(() {
+                    List<Widget> rows = [];
+                    
+                    // Total row
+                    rows.add(_buildInfoRow("Total Devices", "${homeController.totalDevicesCount}"));
+                    
+                    // Camera rows
+                    if (homeController.newCameraCount.value > 0) {
+                      rows.add(const SizedBox(height: 15));
+                      rows.add(_buildInfoRow("New Camera", "${homeController.newCameraCount.value}"));
+                    }
+                    if (homeController.repairedCameraCount.value > 0) {
+                      rows.add(const SizedBox(height: 15));
+                      rows.add(_buildInfoRow("Repaired Camera", "${homeController.repairedCameraCount.value}"));
+                    }
+                    
+                    // Speed Governor rows
+                    if (homeController.newSpeedGovernorCount.value > 0) {
+                      rows.add(const SizedBox(height: 15));
+                      rows.add(_buildInfoRow("New Speed Governor", "${homeController.newSpeedGovernorCount.value}"));
+                    }
+                    if (homeController.repairedSpeedGovernorCount.value > 0) {
+                      rows.add(const SizedBox(height: 15));
+                      rows.add(_buildInfoRow("Repaired Speed Governor", "${homeController.repairedSpeedGovernorCount.value}"));
+                    }
+
+                    // GPS rows
+                    if (homeController.newGpsCount.value > 0) {
+                      rows.add(const SizedBox(height: 15));
+                      rows.add(_buildInfoRow("New GPS", "${homeController.newGpsCount.value}"));
+                    }
+                    if (homeController.repairedGpsCount.value > 0) {
+                      rows.add(const SizedBox(height: 15));
+                      rows.add(_buildInfoRow("Repaired GPS", "${homeController.repairedGpsCount.value}"));
+                    }
+                    
+                    return Column(children: rows);
+                  }),
                 ),
               ],
             ),
@@ -80,14 +107,13 @@ class CameraPreviewView extends StatelessWidget {
               color: AppColors.white,
               child: Row(
                 children: [
-                  // Add More Button
                   Expanded(
                     child: SizedBox(
                       height: 55,
                       child: ElevatedButton(
                         onPressed: () => _showAddDeviceDialog(context, homeController),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFE1F5FE), // Light blue
+                          backgroundColor: const Color(0xFFE1F5FE),
                           foregroundColor: AppColors.primaryBlue,
                           elevation: 0,
                           shape: RoundedRectangleBorder(
@@ -105,7 +131,6 @@ class CameraPreviewView extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 15),
-                  // Submit Button
                   Expanded(
                     child: SizedBox(
                       height: 55,
@@ -114,7 +139,7 @@ class CameraPreviewView extends StatelessWidget {
                           Get.to(() => const AllocationSuccessView());
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primaryBlue,
+                          backgroundColor: Color(0xFF4FC3F7),
                           foregroundColor: Colors.white,
                           elevation: 0,
                           shape: RoundedRectangleBorder(
@@ -180,14 +205,11 @@ class CameraPreviewView extends StatelessWidget {
     );
   }
 
-  void _showAddDeviceDialog(
-      BuildContext context, HomeController homeController) {
+  void _showAddDeviceDialog(BuildContext context, HomeController homeController) {
     String? selectedType;
     Get.dialog(
       Dialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 25),
           child: Column(
@@ -197,49 +219,24 @@ class CameraPreviewView extends StatelessWidget {
               RichText(
                 text: const TextSpan(
                   text: 'Device Type',
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w500,
-                  ),
+                  style: TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.w500),
                   children: [
-                    TextSpan(
-                      text: '*',
-                      style: TextStyle(
-                        color: Colors.red,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                    TextSpan(text: '*', style: TextStyle(color: Colors.red, fontSize: 18, fontWeight: FontWeight.bold)),
                   ],
                 ),
               ),
               const SizedBox(height: 15),
               DropdownButtonFormField<String>(
                 decoration: InputDecoration(
-                  contentPadding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide(color: Colors.grey.shade300),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide(color: Colors.grey.shade300),
-                  ),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Colors.grey.shade300)),
+                  enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Colors.grey.shade300)),
                 ),
                 hint: const Text("Select Device Type"),
-                items: homeController.deviceTypeOptions
-                    .where((type) => type != 'GPS')
-                    .map((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
-                  );
+                items: homeController.deviceTypeOptions.where((type) => type != 'GPS').map((String value) {
+                  return DropdownMenuItem<String>(value: value, child: Text(value));
                 }).toList(),
-                onChanged: (newValue) {
-                  selectedType = newValue;
-                },
+                onChanged: (newValue) => selectedType = newValue,
               ),
               const SizedBox(height: 30),
               Row(
@@ -250,21 +247,12 @@ class CameraPreviewView extends StatelessWidget {
                       child: ElevatedButton(
                         onPressed: () => Get.back(),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor:
-                              const Color(0xFFE1F5FE), // Light blue
+                          backgroundColor: const Color(0xFFE1F5FE),
                           foregroundColor: AppColors.primaryBlue,
                           elevation: 0,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                         ),
-                        child: const Text(
-                          "Cancel",
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                        child: const Text("Cancel", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                       ),
                     ),
                   ),
@@ -275,19 +263,11 @@ class CameraPreviewView extends StatelessWidget {
                       child: ElevatedButton(
                         onPressed: () {
                           if (selectedType != null) {
-                            Get.back(); // Close dialog
-                            if (selectedType == 'GPS') {
-                              Get.to(() => const GpsScanDeviceView());
-                            } else if (selectedType == 'Camera') {
+                            Get.back();
+                            if (selectedType == 'Camera') {
                               Get.to(() => const CameraDetailsView());
                             } else if (selectedType == 'Speed Governor') {
                               Get.to(() => const SpeedGovernorDetailsView());
-                            } else {
-                              Get.snackbar(
-                                'Info',
-                                'Details for $selectedType not implemented yet.',
-                                snackPosition: SnackPosition.BOTTOM,
-                              );
                             }
                           }
                         },
@@ -295,17 +275,9 @@ class CameraPreviewView extends StatelessWidget {
                           backgroundColor: AppColors.primaryBlue,
                           foregroundColor: Colors.white,
                           elevation: 0,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                         ),
-                        child: const Text(
-                          "Submit",
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                        child: const Text("Submit", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                       ),
                     ),
                   ),

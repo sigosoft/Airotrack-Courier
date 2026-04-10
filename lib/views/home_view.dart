@@ -14,23 +14,28 @@ import '../widgets/custom_app_bar.dart';
 import 'gps_scan_device_view.dart';
 import 'camera_details_view.dart';
 import 'speed_governor_details_view.dart';
-import 'gps_details_view.dart';
 
-class HomeView extends GetView<HomeController> {
+class HomeView extends StatefulWidget {
   const HomeView({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
+  State<HomeView> createState() => _HomeViewState();
+}
 
+class _HomeViewState extends State<HomeView> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  final HomeController controller = Get.find<HomeController>();
+
+  @override
+  Widget build(BuildContext context) {
     // MediaQuery for responsive design
     final mediaQuery = MediaQuery.of(context);
     final height = mediaQuery.size.height;
     final width = mediaQuery.size.width;
 
     return Scaffold(
-      key: scaffoldKey,
-      appBar: CustomAppBar(scaffoldKey: scaffoldKey),
+      key: _scaffoldKey,
+      appBar: CustomAppBar(scaffoldKey: _scaffoldKey),
       drawer: Drawer(
         backgroundColor: AppColors.white,
         elevation: 0,
@@ -452,7 +457,6 @@ class HomeView extends GetView<HomeController> {
                       ),
                       SizedBox(height: height * 0.015),
                       TextFormField(
-                        key: controller.searchFieldKey,
                         controller: controller.searchController,
                         focusNode: controller.searchFocusNode,
                         onChanged: (value) => controller.filterResults(value),
@@ -642,62 +646,49 @@ class HomeView extends GetView<HomeController> {
                                         ),
                                       ),
                                     ),
-                                    SizedBox(height: height * 0.015),
-                                  ],
-                                  SizedBox(
-                                    width: double.infinity,
-                                    height: 55,
-                                    child: ElevatedButton(
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: AppColors.primaryBlue,
-                                        foregroundColor: Colors.white,
-                                        elevation: 0,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            10,
+                                  ] else ...[
+                                    SizedBox(
+                                      width: double.infinity,
+                                      height: 55,
+                                      child: ElevatedButton(
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: AppColors.primaryBlue,
+                                          foregroundColor: Colors.white,
+                                          elevation: 0,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              10,
+                                            ),
+                                          ),
+                                        ),
+                                        onPressed: () {
+                                          if (controller
+                                                  .selectedDeviceType
+                                                  .value ==
+                                              'Camera') {
+                                            Get.to(
+                                              () => const CameraDetailsView(),
+                                            );
+                                          } else if (controller
+                                                  .selectedDeviceType
+                                                  .value ==
+                                              'Speed Governor') {
+                                            Get.to(
+                                              () =>
+                                                  const SpeedGovernorDetailsView(),
+                                            );
+                                          }
+                                        },
+                                        child: const Text(
+                                          "Submit and Enter Details",
+                                          style: TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold,
                                           ),
                                         ),
                                       ),
-                                      onPressed: () {
-                                        if (controller
-                                                .selectedDeviceType
-                                                .value ==
-                                            'Camera') {
-                                          Get.to(
-                                            () => const CameraDetailsView(),
-                                          );
-                                        } else if (controller
-                                                .selectedDeviceType
-                                                .value ==
-                                            'Speed Governor') {
-                                          Get.to(
-                                            () =>
-                                                const SpeedGovernorDetailsView(),
-                                          );
-                                        } else if (controller
-                                                .selectedDeviceType
-                                                .value ==
-                                            'GPS') {
-                                          Get.to(
-                                            () => const GPSDetailsView(),
-                                          );
-                                        } else {
-                                          Get.snackbar(
-                                            'Info',
-                                            'Navigation for ${controller.selectedDeviceType.value} is not implemented yet.',
-                                            snackPosition: SnackPosition.BOTTOM,
-                                          );
-                                        }
-                                      },
-                                      child: const Text(
-                                        "Submit and Enter Details",
-                                        style: TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
                                     ),
-                                  ),
+                                  ],
                                 ],
                               )
                             : const SizedBox.shrink(),

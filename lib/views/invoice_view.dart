@@ -1,8 +1,8 @@
+import 'package:airotrack_courier/controllers/home_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../utils/app_colors.dart';
 import 'home_view.dart';
-import '../controllers/home_controller.dart';
 import '../widgets/custom_back_button.dart';
 import '../bindings/home_binding.dart';
 
@@ -311,7 +311,8 @@ class InvoiceView extends StatelessWidget {
                   height: 55,
                   child: ElevatedButton(
                     onPressed: () {
-                      Get.delete<HomeController>(force: true);
+                      // Reset data for fresh allocation
+                      Get.find<HomeController>().resetAll();
                       Get.offAll(() => const HomeView(), binding: HomeBinding());
                     },
                     style: ElevatedButton.styleFrom(

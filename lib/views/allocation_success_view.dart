@@ -3,8 +3,36 @@ import 'package:get/get.dart';
 import '../utils/app_colors.dart';
 import 'invoice_view.dart';
 
-class AllocationSuccessView extends StatelessWidget {
+class AllocationSuccessView extends StatefulWidget {
   const AllocationSuccessView({super.key});
+
+  @override
+  State<AllocationSuccessView> createState() => _AllocationSuccessViewState();
+}
+
+class _AllocationSuccessViewState extends State<AllocationSuccessView>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 1500),
+      vsync: this,
+    )..repeat(reverse: true);
+
+    _animation = Tween<double>(begin: 1.0, end: 1.1).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -21,51 +49,69 @@ class AllocationSuccessView extends StatelessWidget {
           child: Column(
             children: [
               const Spacer(flex: 3),
-              // Concentric circles success icon
+              // Concentric circles success icon with animation
               Center(
-                child: Container(
-                  height: width * 0.55,
-                  width: width * 0.55,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: const Color(0xFFE3F2FD), // Very light blue
-                  ),
-                  child: Center(
-                    child: Container(
-                      height: width * 0.42,
-                      width: width * 0.42,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: const Color(0xFFBBDEFB), // Light blue
-                      ),
-                      child: Center(
-                        child: Container(
-                          height: width * 0.3,
-                          width: width * 0.3,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: AppColors.primaryBlue, // Actual blue
-                          ),
-                          child: const Icon(
-                            Icons.check_rounded,
-                            color: Colors.white,
-                            size: 75,
+                child: AnimatedBuilder(
+                  animation: _animation,
+                  builder: (context, child) {
+                    return Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        // Outer circle (Large pulse)
+                        Transform.scale(
+                          scale: 1.0 + (_animation.value - 1.0) * 1.5,
+                          child: Container(
+                            height: width * 0.55,
+                            width: width * 0.55,
+                            decoration: const BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Color(0xFFE3F2FD), // Very light blue
+                            ),
                           ),
                         ),
-                      ),
-                    ),
-                  ),
+                        // Middle circle (Medium pulse)
+                        Transform.scale(
+                          scale: 1.0 + (_animation.value - 1.0) * 0.8,
+                          child: Container(
+                            height: width * 0.42,
+                            width: width * 0.42,
+                            decoration: const BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Color(0xFFBBDEFB), // Light blue
+                            ),
+                          ),
+                        ),
+                        // Inner circle (Slight pulse)
+                        Transform.scale(
+                          scale: 1.0 + (_animation.value - 1.0) * 0.3,
+                          child: Container(
+                            height: width * 0.3,
+                            width: width * 0.3,
+                            decoration: const BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: AppColors.primaryBlue, // Actual blue
+                            ),
+                            child: const Icon(
+                              Icons.check_rounded,
+                              color: Colors.white,
+                              size: 75,
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
                 ),
               ),
               SizedBox(height: height * 0.06),
               // Success message
-              Text(
+              const Text(
                 'Device allocated successfully',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
-                  color: const Color(0xFF333333),
+                  color: Color(0xFF333333),
                 ),
               ),
               const Spacer(flex: 4),
