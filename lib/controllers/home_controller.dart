@@ -83,8 +83,6 @@ class HomeController extends GetxController {
   // FocusNode for the search field
   final searchFocusNode = FocusNode();
 
-  // GlobalKey for the search field to maintain focus state across rebuilds
-  final searchFieldKey = GlobalKey<FormFieldState>();
 
   @override
   void onClose() {
@@ -101,6 +99,46 @@ class HomeController extends GetxController {
     showResults.value = false;
     filteredResults.clear();
     searchFocusNode.unfocus(); // Close keyboard on selection
+  }
+
+  // Device counts for Allocation Summary
+  final newCameraCount = 0.obs;
+  final repairedCameraCount = 0.obs;
+  final newSpeedGovernorCount = 0.obs;
+  final repairedSpeedGovernorCount = 0.obs;
+  final newGpsCount = 0.obs;
+  final repairedGpsCount = 0.obs;
+
+  // Computed total devices
+  int get totalDevicesCount =>
+      newCameraCount.value +
+      repairedCameraCount.value +
+      newSpeedGovernorCount.value +
+      repairedSpeedGovernorCount.value +
+      newGpsCount.value +
+      repairedGpsCount.value;
+
+  // Method to clear all counts
+  void clearDeviceCounts() {
+    newCameraCount.value = 0;
+    repairedCameraCount.value = 0;
+    newSpeedGovernorCount.value = 0;
+    repairedSpeedGovernorCount.value = 0;
+    newGpsCount.value = 0;
+    repairedGpsCount.value = 0;
+  }
+
+  // Reset UI fields but KEEP device counts
+  void resetAll() {
+    selectedDealerName.value = '';
+    selectedDeviceType.value = '';
+    searchController.clear();
+    isDealerSelected.value = false;
+    showResults.value = false;
+    filteredResults.clear();
+    userProfile.update((val) {
+      val?.selectedUserType = 'Select User Type';
+    });
   }
 
   // Method to update device type

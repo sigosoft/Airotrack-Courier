@@ -59,6 +59,35 @@ class CameraDetailsView extends StatelessWidget {
                   decoration: _buildInputDecoration('Enter amount'),
                 ),
 
+                const SizedBox(height: 25),
+
+                // Device Status Field
+                _buildFieldLabel('Device Status'),
+                const SizedBox(height: 10),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 15),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey.shade300),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Obx(
+                    () => DropdownButtonHideUnderline(
+                      child: DropdownButton<String>(
+                        isExpanded: true,
+                        value: controller.selectedStatus.value,
+                        icon: const Icon(Icons.keyboard_arrow_down),
+                        items: controller.statusOptions.map((String value) {
+                          return DropdownMenuItem<String>(
+                            value: value,
+                            child: Text(value),
+                          );
+                        }).toList(),
+                        onChanged: (value) => controller.updateStatus(value),
+                      ),
+                    ),
+                  ),
+                ),
+
                 const SizedBox(height: 100), // Space for bottom buttons
               ],
             ),

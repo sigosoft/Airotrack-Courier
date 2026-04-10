@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../views/speed_governor_preview_view.dart';
+import '../controllers/home_controller.dart';
+import '../views/allocation_preview_view.dart';
 
 class SpeedGovernorDetailsController extends GetxController {
   final serialController = TextEditingController();
   final amountController = TextEditingController();
+
+  // Status selection
+  final List<String> statusOptions = ['New', 'Repaired'];
+  final selectedStatus = 'New'.obs;
 
   @override
   void onClose() {
@@ -13,8 +18,14 @@ class SpeedGovernorDetailsController extends GetxController {
     super.onClose();
   }
 
+  void updateStatus(String? value) {
+    if (value != null) {
+      selectedStatus.value = value;
+    }
+  }
+
   void onPreview() {
-    Get.to(() => const SpeedGovernorPreviewView());
+    Get.to(() => const AllocationPreviewView());
   }
 
   void onNext() {
@@ -28,6 +39,20 @@ class SpeedGovernorDetailsController extends GetxController {
       );
       return;
     }
-    Get.to(() => const SpeedGovernorPreviewView());
+
+    // Increment counts in HomeController
+    final homeController = Get.find<HomeController>();
+    if (selectedStatus.value == 'New') {
+      homeController.newSpeedGovernorCount.value++;
+    } else {
+      homeController.repairedSpeedGovernorCount.value++;
+    }
+
+    // Clear fields for next entry
+    serialController.clear();
+    amountController.clear();
+
+    // Navigate to unified AllocationPreviewView
+    Get.to(() => const AllocationPreviewView());
   }
 }
