@@ -1,3 +1,4 @@
+import 'package:airotrack_courier/utils/app_assets.dart';
 import 'package:flutter/material.dart';
 import '../utils/app_colors.dart';
 
@@ -25,8 +26,8 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       ),     
       centerTitle: true,
       title: Image.asset(
-        'lib/assets/images/applogo.png',
-        width: width * 0.25, // Using mediaquery as requested
+        AppAssets.logo,
+        width: width * 0.25,
         height: height * 0.10,
         fit: BoxFit.contain,
       ),

@@ -1,4 +1,4 @@
-import 'package:airotrack_courier/views/login_view.dart';
+import 'package:airotrack_courier/views/splash_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'utils/app_colors.dart';
@@ -19,7 +19,7 @@ class MainApp extends StatelessWidget {
         primaryColor: AppColors.primaryBlue,
         useMaterial3: true,
       ),
-      home: const LoginView(),
+      home: const SplashView(),
     );
   }
 }

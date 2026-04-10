@@ -7,7 +7,7 @@ import '../bindings/home_binding.dart';
 
 class LoginView extends StatelessWidget {
   const LoginView({super.key});
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -36,7 +36,7 @@ class LoginView extends StatelessWidget {
                   fontWeight: FontWeight.w400,
                 ),
               ),
-              height50,
+              height100,
               const Text(
                 "Username",
                 style: TextStyle(

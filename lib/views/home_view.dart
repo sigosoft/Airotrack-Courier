@@ -1,5 +1,6 @@
 // ignore_for_file: deprecated_member_use
 
+import 'package:airotrack_courier/utils/app_assets.dart';
 import 'package:airotrack_courier/utils/width_height.dart';
 import 'package:airotrack_courier/views/login_view.dart';
 import 'package:airotrack_courier/views/about_us.dart';
@@ -60,7 +61,7 @@ class _HomeViewState extends State<HomeView> {
                   ),
                   Center(
                     child: Image.asset(
-                      'lib/assets/images/applogo.png',
+                      AppAssets.logo,
                       height: 160,
                       fit: BoxFit.contain,
                     ),

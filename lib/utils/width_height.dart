@@ -10,6 +10,7 @@ SizedBox height35 = SizedBox(height: 35);
 SizedBox height40 = SizedBox(height: 40);
 SizedBox height45 = SizedBox(height: 45);
 SizedBox height50 = SizedBox(height: 50);
+SizedBox height100 = SizedBox(height: 100);
 
 
 SizedBox width5 = SizedBox(width: 5);
