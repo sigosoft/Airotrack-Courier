@@ -1,5 +1,6 @@
 // ignore_for_file: deprecated_member_use
 
+import 'package:airotrack_courier/views/allocation_preview_view.dart';
 import 'package:airotrack_courier/views/gps_preview_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -104,7 +105,7 @@ class GpsScanDeviceView extends GetView<ScanDeviceController> {
                     icon: Icons.visibility_outlined,
                     label: 'Preview',
                     onPressed: () {
-                    Navigator.push(context,MaterialPageRoute(builder:(context)=>GpsPreviewView()));
+                    Get.to(() => const GpsPreviewView());
                     },
                     width: width * 0.42,
                   ),

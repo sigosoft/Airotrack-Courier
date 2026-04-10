@@ -106,17 +106,13 @@ class HomeController extends GetxController {
   final repairedCameraCount = 0.obs;
   final newSpeedGovernorCount = 0.obs;
   final repairedSpeedGovernorCount = 0.obs;
-  final newGpsCount = 0.obs;
-  final repairedGpsCount = 0.obs;
 
   // Computed total devices
   int get totalDevicesCount =>
       newCameraCount.value +
       repairedCameraCount.value +
       newSpeedGovernorCount.value +
-      repairedSpeedGovernorCount.value +
-      newGpsCount.value +
-      repairedGpsCount.value;
+      repairedSpeedGovernorCount.value;
 
   // Method to clear all counts
   void clearDeviceCounts() {
@@ -124,8 +120,6 @@ class HomeController extends GetxController {
     repairedCameraCount.value = 0;
     newSpeedGovernorCount.value = 0;
     repairedSpeedGovernorCount.value = 0;
-    newGpsCount.value = 0;
-    repairedGpsCount.value = 0;
   }
 
   // Reset UI fields but KEEP device counts

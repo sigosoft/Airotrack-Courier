@@ -82,16 +82,6 @@ class AllocationPreviewView extends StatelessWidget {
                       rows.add(_buildInfoRow("Repaired Speed Governor", "${homeController.repairedSpeedGovernorCount.value}"));
                     }
 
-                    // GPS rows
-                    if (homeController.newGpsCount.value > 0) {
-                      rows.add(const SizedBox(height: 15));
-                      rows.add(_buildInfoRow("New GPS", "${homeController.newGpsCount.value}"));
-                    }
-                    if (homeController.repairedGpsCount.value > 0) {
-                      rows.add(const SizedBox(height: 15));
-                      rows.add(_buildInfoRow("Repaired GPS", "${homeController.repairedGpsCount.value}"));
-                    }
-                    
                     return Column(children: rows);
                   }),
                 ),

@@ -677,6 +677,13 @@ class _HomeViewState extends State<HomeView> {
                                               () =>
                                                   const SpeedGovernorDetailsView(),
                                             );
+                                          } else if (controller
+                                                  .selectedDeviceType
+                                                  .value ==
+                                              'GPS') {
+                                            Get.to(
+                                              () => const GpsScanDeviceView(),
+                                            );
                                           }
                                         },
                                         child: const Text(
