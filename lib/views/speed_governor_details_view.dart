@@ -6,7 +6,6 @@ import '../widgets/custom_back_button.dart';
 
 class SpeedGovernorDetailsView extends StatelessWidget {
   const SpeedGovernorDetailsView({super.key});
-
   @override
   Widget build(BuildContext context) {
     final controller = Get.put(SpeedGovernorDetailsController());

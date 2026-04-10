@@ -6,7 +6,6 @@ import '../widgets/custom_back_button.dart';
 
 class GPSDetailsView extends StatelessWidget {
   const GPSDetailsView({super.key});
-
   @override
   Widget build(BuildContext context) {
     final controller = Get.put(GPSDetailsController());

@@ -18,6 +18,7 @@ class SpeedGovernorDetailsController extends GetxController {
     super.onClose();
   }
 
+
   void updateStatus(String? value) {
     if (value != null) {
       selectedStatus.value = value;

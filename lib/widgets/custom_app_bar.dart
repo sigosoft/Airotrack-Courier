@@ -23,6 +23,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           }
         },
       ),
+      
       centerTitle: true,
       title: Image.asset(
         'lib/assets/images/applogo.png',

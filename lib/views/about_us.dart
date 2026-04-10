@@ -34,4 +34,5 @@ class AboutUsView extends StatelessWidget {
       ),
     );
   }
+  
 }

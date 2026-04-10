@@ -14,7 +14,6 @@ class AllocationPreviewView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final HomeController homeController = Get.find<HomeController>();
-    
     return Scaffold(
       backgroundColor: AppColors.white,
       appBar: AppBar(

@@ -19,6 +19,7 @@ class ScanDeviceController extends GetxController {
     isFlashOn.value = !isFlashOn.value;
   }
 
+
   // Handle Scanning results
   void onDetect(BarcodeCapture capture) {
     final List<Barcode> barcodes = capture.barcodes;

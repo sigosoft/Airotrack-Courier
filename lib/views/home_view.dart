@@ -455,6 +455,7 @@ class _HomeViewState extends State<HomeView> {
                           ],
                         ),
                       ),
+                      
                       SizedBox(height: height * 0.015),
                       TextFormField(
                         controller: controller.searchController,

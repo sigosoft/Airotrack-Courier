@@ -9,7 +9,6 @@ import '../utils/app_colors.dart';
 
 class GpsScanDeviceView extends GetView<ScanDeviceController> {
   const GpsScanDeviceView({super.key});
-
   @override
   Widget build(BuildContext context) {
     // Initializing the controller if not already done

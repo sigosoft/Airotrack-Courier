@@ -17,6 +17,7 @@ class GPSDetailsController extends GetxController {
     amountController.dispose();
     super.onClose();
   }
+  
 
   void updateStatus(String? value) {
     if (value != null) {

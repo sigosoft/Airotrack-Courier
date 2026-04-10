@@ -13,6 +13,7 @@ Widget buildSection(String title, String content) {
             color: AppColors.black,
           ),
         ),
+        
         const SizedBox(height: 12),
         Text(
           content,
