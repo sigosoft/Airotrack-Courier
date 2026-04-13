@@ -1,10 +1,9 @@
 class UserProfile {
-  final String name;
-  final String date;
-  final String time;
+  String name;
+  String date;
+  String time;
   final List<String> userTypeOptions;
   String selectedUserType;
-
 
   UserProfile({
     required this.name,

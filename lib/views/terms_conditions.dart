@@ -1,13 +1,20 @@
 import 'package:airotrack_courier/widgets/custom_back_button.dart';
 import 'package:airotrack_courier/widgets/custom_build_section.dart';
+import 'package:airotrack_courier/widgets/custom_loading_indicator.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import '../utils/app_colors.dart';
+import '../controllers/terms_and_conditions_controller.dart';
 
 class TermsAndConditionsView extends StatelessWidget {
   const TermsAndConditionsView({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final TermsAndConditionsController controller = Get.put(
+      TermsAndConditionsController(),
+    );
+
     return Scaffold(
       backgroundColor: AppColors.white,
       appBar: AppBar(
@@ -24,27 +31,31 @@ class TermsAndConditionsView extends StatelessWidget {
         ),
         centerTitle: true,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            buildSection(
-              'Account Terms',
-              'Cupidatat irure theas Laborum magna nulla duis ullamco cillum dolor. Sed ut perspicviatis unde omnis iste natus error sit voluptatem accusantium doloremque',
-            ),
-            const SizedBox(height: 25),
-            buildSection(
-              'Copyright and Licenses',
-              'Cupidatat irure theas Laborum magna nulla duis ullamco cillum dolor. Sed ut perspicviatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illoamet inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, quiamet dolorem ipsum quia dolor sit amet, cons tbsa, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrumamet exercitationem ullam corporis suscipitamet laboriosam, nisi ut aliquid ex ea commodi consequatur?',
-            ),
-          ],
-        ),
-      ),
+      body: Obx(() {
+        if (controller.isLoading.value) {
+          return const CustomLoadingIndicator();
+        }
+
+        final data = controller.termsData.value;
+        if (data == null) {
+          return const Center(
+            child: Text("No terms and conditions information available"),
+          );
+        }
+
+        return SingleChildScrollView(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              buildSection(
+                data.title ?? 'Terms and Conditions',
+                data.content ?? '',
+              ),
+            ],
+          ),
+        );
+      }),
     );
   }
-
-
-
-  
 }

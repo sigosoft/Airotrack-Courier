@@ -9,6 +9,7 @@ import 'package:airotrack_courier/views/privacy_policy.dart';
 import 'package:airotrack_courier/views/terms_conditions.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import '../controllers/home_controller.dart';
 import '../utils/app_colors.dart';
 import '../widgets/custom_app_bar.dart';
@@ -190,10 +191,11 @@ class _HomeViewState extends State<HomeView> {
                                     Expanded(
                                       child: ElevatedButton(
                                         onPressed: () {
+                                          Hive.box('userBox').clear();
                                           Get.delete<HomeController>(
                                             force: true,
                                           );
-                                          Get.offAll(() => const LoginView());
+                                          Get.offAll(() => LoginView());
                                         },
                                         style: ElevatedButton.styleFrom(
                                           backgroundColor: AppColors.cardBlue,
@@ -292,7 +294,7 @@ class _HomeViewState extends State<HomeView> {
                       'Welcome',
                       style: TextStyle(
                         color: AppColors.white,
-                        fontSize: 22,
+                        fontSize: 18,
                         fontWeight: FontWeight.w400,
                       ),
                     ),
@@ -302,7 +304,7 @@ class _HomeViewState extends State<HomeView> {
                         controller.userProfile.value.name,
                         style: const TextStyle(
                           color: AppColors.white,
-                          fontSize: 32,
+                          fontSize: 20,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -455,7 +457,7 @@ class _HomeViewState extends State<HomeView> {
                             ),
                           ],
                         ),
-                      ),                     
+                      ),
                       SizedBox(height: height * 0.015),
                       TextFormField(
                         controller: controller.searchController,
@@ -653,7 +655,8 @@ class _HomeViewState extends State<HomeView> {
                                       height: 55,
                                       child: ElevatedButton(
                                         style: ElevatedButton.styleFrom(
-                                          backgroundColor: AppColors.primaryBlue,
+                                          backgroundColor:
+                                              AppColors.primaryBlue,
                                           foregroundColor: Colors.white,
                                           elevation: 0,
                                           shape: RoundedRectangleBorder(

@@ -3,10 +3,14 @@ import 'package:airotrack_courier/utils/width_height.dart';
 import 'package:airotrack_courier/views/home_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../controllers/login_controller.dart';
 import '../bindings/home_binding.dart';
+import '../widgets/custom_loading_indicator.dart';
 
 class LoginView extends StatelessWidget {
-  const LoginView({super.key});
+  LoginView({super.key});
+
+  final LoginController controller = Get.put(LoginController());
 
   @override
   Widget build(BuildContext context) {
@@ -47,6 +51,7 @@ class LoginView extends StatelessWidget {
               ),
               height10,
               TextFormField(
+                controller: controller.usernameController,
                 decoration: InputDecoration(
                   hintText: "Enter username",
                   hintStyle: TextStyle(color: Colors.grey.shade400),
@@ -78,26 +83,39 @@ class LoginView extends StatelessWidget {
                 ),
               ),
               height10,
-              TextFormField(
-                obscureText: true,
-                decoration: InputDecoration(
-                  hintText: "Enter password",
-                  hintStyle: TextStyle(color: Colors.grey.shade400),
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 15,
-                    vertical: 18,
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide(color: Colors.grey.shade300),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide(color: Colors.grey.shade300),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: const BorderSide(color: AppColors.primaryBlue),
+              Obx(
+                () => TextFormField(
+                  controller: controller.passwordController,
+                  obscureText: !controller.isPasswordVisible.value,
+                  decoration: InputDecoration(
+                    hintText: "Enter password",
+                    hintStyle: TextStyle(color: Colors.grey.shade400),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 15,
+                      vertical: 18,
+                    ),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        controller.isPasswordVisible.value
+                            ? Icons.visibility
+                            : Icons.visibility_off,
+                        color: Colors.grey,
+                      ),
+                      onPressed: controller.togglePasswordVisibility,
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide(color: Colors.grey.shade300),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide(color: Colors.grey.shade300),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide:
+                          const BorderSide(color: AppColors.primaryBlue),
+                    ),
                   ),
                 ),
               ),
@@ -105,21 +123,28 @@ class LoginView extends StatelessWidget {
               SizedBox(
                 width: double.infinity,
                 height: 55,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primaryBlue,
-                    foregroundColor: Colors.white,
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
+                child: Obx(
+                  () => ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primaryBlue,
+                      foregroundColor: Colors.white,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                     ),
-                  ),
-                  onPressed: () {
-                    Get.to(() => const HomeView(), binding: HomeBinding());
-                  },
-                  child: const Text(
-                    "Continue",
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    onPressed: controller.isLoading.value
+                        ? null
+                        : () {
+                            controller.login();
+                          },
+                    child: controller.isLoading.value
+                        ? const CustomLoadingIndicator(color: Colors.white)
+                        : const Text(
+                            "Continue",
+                            style: TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold),
+                          ),
                   ),
                 ),
               ),
