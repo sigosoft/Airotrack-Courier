@@ -8,4 +8,8 @@ class ApiConstants {
   static const String privacyPolicy = "privacyPolicy";
   static const String termsAndConditions = "termsAndConditions";
   static const String aboutUs = "aboutUs";
+  static const String gpsTemporaryStorage = "gpsTemporaryStorage";
+  static const String gpsPreview = "gpsPreview";
+  static const String deleteTemporaryStorage = "deleteTemporaryStorage";
+  static const String gpsAllocate = "gpsAllocate";
 }

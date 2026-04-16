@@ -29,6 +29,14 @@ class _HomeViewState extends State<HomeView> {
   final HomeController controller = Get.find<HomeController>();
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      controller.settings(context);
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     // MediaQuery for responsive design
     final mediaQuery = MediaQuery.of(context);
@@ -738,6 +746,61 @@ class _HomeViewState extends State<HomeView> {
       ),
       trailing: Icon(Icons.chevron_right, color: iconColor, size: 20),
       onTap: onTap,
+    );
+  }
+}
+
+class Maintenance extends StatelessWidget {
+  const Maintenance({super.key, required this.serverDownReason});
+  final String? serverDownReason;
+
+  @override
+  Widget build(BuildContext context) {
+    return Directionality(
+      textDirection: TextDirection.ltr,
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        body: Padding(
+          padding: const EdgeInsets.only(left: 15.0, right: 15, bottom: 50),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Center(
+                child: Image.asset(
+                  "assets/images/maintenance.png",
+                  height: 180,
+                  errorBuilder: (context, error, stackTrace) =>
+                      const Icon(Icons.build, size: 100, color: Colors.grey),
+                ),
+              ),
+              const SizedBox(height: 20),
+              const Text(
+                "We'll be back soon",
+                style: TextStyle(
+                  fontFamily: 'Rubik',
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Container(
+                padding: const EdgeInsets.only(left: 15, right: 15),
+                child: Text(
+                  serverDownReason.toString(),
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontFamily: 'Rubik',
+                    fontSize: 13,
+                    color: Colors.grey.shade600,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 40),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

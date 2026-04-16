@@ -1,7 +1,13 @@
+import 'package:airotrack_courier/models/settings_model.dart';
+import 'package:airotrack_courier/services/dio_client.dart';
+import 'package:airotrack_courier/views/home_view.dart';
+import 'package:airotrack_courier/views/need_an_update.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import 'dart:io';
 import 'dart:convert';
 import '../models/user_profile.dart';
 import '../services/api_service.dart';
@@ -23,6 +29,76 @@ class HomeController extends GetxController {
   final RxList<Technician> fetchedTechnicians = <Technician>[].obs;
   final RxBool isDealersLoading = false.obs;
   final RxBool isTechniciansLoading = false.obs;
+
+  int versionToCode(String version) {
+    final parts = version.split('.');
+    final major = int.parse(parts[0]);
+    final minor = int.parse(parts[1]);
+    final patch = int.parse(parts[2]);
+
+    return major * 10000 + minor * 100 + patch;
+  }
+
+  void getHome() {
+    debugPrint("App is up to date and in allowed state. Welcome to Home!");
+  }
+
+  void showToast(BuildContext context, String message) {
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  Future<void> settings(BuildContext context) async {
+    try {
+      PackageInfo packageInfo = await PackageInfo.fromPlatform();
+      String buildNumber = packageInfo.version;
+      final response = await DioClient().get(ApiEndPoints.settings);
+      SettingsModel model = SettingsModel.fromJson(response.data);
+      if (model.status == true) {
+        if (Platform.isAndroid &&
+            model.data?.settings?[0].maintenanceAndroid.toString() == "1") {
+          Get.offAll(
+            Maintenance(
+              serverDownReason: model
+                  .data
+                  ?.settings?[0]
+                  .maintenanceReasonAndroid
+                  .toString(),
+            ),
+          );
+        } else if (Platform.isIOS &&
+            model.data?.settings?[0].maintenanceIos.toString() == "1") {
+          Get.offAll(
+            Maintenance(
+              serverDownReason: model.data?.settings?[0].maintenanceReasonIos
+                  .toString(),
+            ),
+          );
+        } else if (Platform.isAndroid &&
+            (model.data?.settings?[0].playStoreUpdate.toString() == "1" &&
+                versionToCode(
+                      model.data?.settings?[0].playStoreVersion.toString() ??
+                          "",
+                    ) >
+                    versionToCode(buildNumber.toString()))) {
+          Get.offAll(() => NeedAnUpdate());
+        } else if (Platform.isIOS &&
+            (model.data?.settings?[0].appStoreUpdate.toString() == "1" &&
+                versionToCode(
+                      model.data?.settings?[0].appStoreVersion.toString() ?? "",
+                    ) >
+                    versionToCode(buildNumber.toString()))) {
+          Get.offAll(() => NeedAnUpdate());
+        } else {
+          getHome();
+        }
+      }
+    } catch (error) {
+      print("maintenance Error: $error");
+      showToast(context, error.toString());
+    }
+  }
 
   // Method to update user type
   void updateSelectedUserType(String? value) {

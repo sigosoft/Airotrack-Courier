@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../utils/app_colors.dart';
 import '../utils/width_height.dart';
 import '../widgets/custom_back_button.dart';
+import '../controllers/gps_preview_controller.dart';
 import '../controllers/home_controller.dart';
 
 class GpsPreviewView extends StatelessWidget {
@@ -12,6 +13,8 @@ class GpsPreviewView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final HomeController homeController = Get.find<HomeController>();
+    // Inject the preview controller
+    final GpsPreviewController previewController = Get.put(GpsPreviewController());
 
     return Scaffold(
       backgroundColor: AppColors.white,
@@ -49,31 +52,32 @@ class GpsPreviewView extends StatelessWidget {
                   ),
                 ),
                 height20,
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade100,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Column(
-                    children: [
-                      _buildInfoRow("Total Devices", "100"),
-                      const SizedBox(height: 15),
-                      _buildInfoRow("New Devices", "80"),
-                      const SizedBox(height: 15),
-                      _buildInfoRow("Repaired Devices", "20"),
-                    ],
-                  ),
-                ),
+                Obx(() {
+                  if (previewController.isLoading.value) {
+                    return const Center(child: Padding(
+                      padding: EdgeInsets.all(20.0),
+                      child: CircularProgressIndicator(),
+                    ));
+                  }
+                  return Container(
+                    padding: const EdgeInsets.all(20),
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade100,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Column(
+                      children: [
+                        _buildInfoRow("Total Devices", previewController.totalDevices.value),
+                        const SizedBox(height: 15),
+                        _buildInfoRow("New Devices", previewController.newDevices.value),
+                        const SizedBox(height: 15),
+                        _buildInfoRow("Repaired Devices", previewController.repairedDevices.value),
+                      ],
+                    ),
+                  );
+                }),
                 const SizedBox(height: 25),
-                // Replaced devices count Field
-                _buildFieldLabel('Replaced devices count'),
-                const SizedBox(height: 10),
-                TextFormField(
-                  keyboardType: TextInputType.number,
-                  decoration: _buildInputDecoration('Enter device count'),
-                ),
               ],
             ),
           ),
@@ -85,25 +89,54 @@ class GpsPreviewView extends StatelessWidget {
               padding: const EdgeInsets.all(20),
               color: AppColors.white,
               width: double.infinity,
-              child: SizedBox(
-                height: 55,
-                child: ElevatedButton(
-                  onPressed: () {
-                    Get.to(() => const GpsDevicePreviewView());
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primaryBlue,
-                    foregroundColor: Colors.white,
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: SizedBox(
+                      height: 55,
+                      child: OutlinedButton(
+                        onPressed: () {
+                          // Navigate back to scanner
+                          Get.back();
+                        },
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: AppColors.primaryBlue,
+                          side: const BorderSide(color: AppColors.primaryBlue),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        child: const Text(
+                          'Add More',
+                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
+                      ),
                     ),
                   ),
-                  child: const Text(
-                    'Submit',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  const SizedBox(width: 15),
+                  Expanded(
+                    child: SizedBox(
+                      height: 55,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Get.to(() => const GpsDevicePreviewView());
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primaryBlue,
+                          foregroundColor: Colors.white,
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        child: const Text(
+                          'Submit',
+                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ),
                   ),
-                ),
+                ],
               ),
             ),
           ),
@@ -112,48 +145,7 @@ class GpsPreviewView extends StatelessWidget {
     );
   }
 
-  Widget _buildFieldLabel(String label) {
-    return RichText(
-      text: TextSpan(
-        text: label,
-        style: const TextStyle(
-          color: Color(0xFF333333),
-          fontSize: 16,
-          fontWeight: FontWeight.w500,
-        ),
-        children: const [
-          TextSpan(
-            text: ' *',
-            style: TextStyle(
-              color: Colors.red,
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  InputDecoration _buildInputDecoration(String hint) {
-    return InputDecoration(
-      hintText: hint,
-      hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 16),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
-        borderSide: BorderSide(color: Colors.grey.shade300),
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
-        borderSide: BorderSide(color: Colors.grey.shade300),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(color: AppColors.primaryBlue),
-      ),
-    );
-  }
+  // Removed _buildFieldLabel and _buildInputDecoration as they are no longer needed.
 
   Widget _buildInfoRow(String label, String value) {
     return Row(
