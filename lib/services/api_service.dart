@@ -8,6 +8,8 @@ import '../models/contact_us_response.dart';
 import '../models/privacy_policy_response.dart';
 import '../models/terms_and_conditions_response.dart';
 import '../models/about_us_response.dart';
+import '../models/allocation_preview_response.dart';
+import '../models/speed_governor_response.dart';
 
 import 'package:hive_flutter/hive_flutter.dart';
 
@@ -36,48 +38,13 @@ class ApiService {
     );
 
     _dio.interceptors.add(
-      InterceptorsWrapper(
-        onRequest: (options, handler) {
-          debugPrint('================ API REQUEST ================');
-          debugPrint('URL: ${options.method} ${options.uri}');
-          debugPrint('HEADERS: \n${options.headers}');
-
-          if (options.data != null) {
-            if (options.data is FormData) {
-              final formData = options.data as FormData;
-              debugPrint('REQUEST BODY (FormData):');
-              for (var field in formData.fields) {
-                debugPrint('  ${field.key}: ${field.value}');
-              }
-              for (var file in formData.files) {
-                debugPrint('  ${file.key}: [File] ${file.value.filename}');
-              }
-            } else {
-              debugPrint('REQUEST BODY: \n${options.data}');
-            }
-          }
-          debugPrint('=============================================');
-          return handler.next(options);
-        },
-        onResponse: (response, handler) {
-          debugPrint('================ API RESPONSE ================');
-          debugPrint('URL: ${response.requestOptions.uri}');
-          debugPrint('STATUS CODE: ${response.statusCode}');
-          debugPrint('HEADERS: \n${response.headers}');
-          debugPrint('RESPONSE DATA: \n${response.data}');
-          debugPrint('==============================================');
-          return handler.next(response);
-        },
-        onError: (DioException e, handler) {
-          debugPrint('================ API ERROR ================');
-          debugPrint('URL: ${e.requestOptions.uri}');
-          debugPrint('STATUS CODE: ${e.response?.statusCode}');
-          debugPrint('HEADERS: \n${e.response?.headers}');
-          debugPrint('ERROR DATA: \n${e.response?.data}');
-          debugPrint('ERROR MESSAGE: ${e.message}');
-          debugPrint('===========================================');
-          return handler.next(e);
-        },
+      LogInterceptor(
+        requestHeader: true,
+        requestBody: true,
+        responseHeader: true,
+        responseBody: true,
+        error: true,
+        logPrint: (object) => debugPrint(object.toString()),
       ),
     );
   }
@@ -191,6 +158,92 @@ class ApiService {
     }
   }
 
+  // Camera & Speed Governor Methods
+  Future<bool> postDeviceDetails({
+    required int userType,
+    required int userId,
+    required int deviceType,
+    String? serialNo,
+    String? cameraName,
+    String? speedGovernorId,
+    required String amount,
+  }) async {
+    try {
+      Map<String, dynamic> data = {
+        "user_type": userType,
+        "user_id": userId,
+        "device_type": deviceType,
+        "amount": amount,
+      };
+
+      if (deviceType == 1) {
+        data["serial_no"] = serialNo;
+        data["camera_name"] = cameraName;
+      } else if (deviceType == 2) {
+        data["speed_governor_id"] = speedGovernorId;
+        data["serial_no"] = serialNo;
+      }
+
+      FormData formData = FormData.fromMap(data);
+
+      Response response = await _dio.post(
+        ApiConstants.cameraSpeedGovernorTemporaryStorage,
+        data: formData,
+      );
+
+      bool status = response.data['status'] is bool 
+          ? response.data['status'] 
+          : response.data['status']?.toString() == "true";
+
+      return response.statusCode == 200 && status;
+    } catch (e) {
+      debugPrint("Error storing device details: $e");
+      return false;
+    }
+  }
+
+  Future<AllocationPreviewResponse?> getAllocationPreview({
+    required int userId,
+    required int userType,
+  }) async {
+    try {
+      FormData formData = FormData.fromMap({
+        "user_type": userType,
+        "user_id": userId,
+      });
+
+      Response response = await _dio.post(
+        ApiConstants.cameraSpeedGovernorPreview,
+        data: formData,
+      );
+
+      if (response.statusCode == 200) {
+        return AllocationPreviewResponse.fromJson(response.data);
+      } else {
+        return null;
+      }
+    } catch (e) {
+      debugPrint("Error fetching allocation preview: $e");
+      return null;
+    }
+  }
+
+  Future<SpeedGovernorResponse?> getSpeedGovernors() async {
+    try {
+      Response response = await _dio.get(ApiConstants.speedGovernors);
+
+      if (response.statusCode == 200) {
+        return SpeedGovernorResponse.fromJson(response.data);
+      } else {
+        return null;
+      }
+    } catch (e) {
+      debugPrint("Error fetching speed governors: $e");
+      rethrow;
+    }
+  }
+
+  // GPS Methods
   Future<Map<String, dynamic>?> setGpsTemporaryStorage({
     required String userType,
     required String userId,

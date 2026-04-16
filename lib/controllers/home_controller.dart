@@ -108,13 +108,16 @@ class HomeController extends GetxController {
       });
 
       if (value == 'Dealer') {
+        selectedUserTypeValue.value = 1;
         fetchDealers();
       } else if (value == 'Technician') {
+        selectedUserTypeValue.value = 2;
         fetchTechnicians();
       }
 
       // Reset dealer search if user type changes
       selectedDealerName.value = '';
+      selectedUserId.value = 0;
       selectedDeviceType.value = '';
     }
   }
@@ -203,6 +206,12 @@ class HomeController extends GetxController {
 
   // Observable for selected dealer name
   final selectedDealerName = ''.obs;
+
+  // Observable for selected user ID (Dealer ID or Technician ID)
+  final selectedUserId = 0.obs;
+
+  // Observable for selected user type value (1 for Dealer, 2 for Technician)
+  final selectedUserTypeValue = 1.obs;
 
   // Observable for selected device type
   final selectedDeviceType = ''.obs;
@@ -296,6 +305,21 @@ class HomeController extends GetxController {
     showResults.value = false;
     filteredResults.clear();
     searchFocusNode.unfocus(); // Close keyboard on selection
+
+    // Find and store the ID
+    if (userProfile.value.selectedUserType == 'Dealer') {
+      final dealer = fetchedDealers.firstWhere(
+        (d) => d.firstName == name,
+        orElse: () => Dealer(dealerId: 0),
+      );
+      selectedUserId.value = dealer.dealerId ?? 0;
+    } else if (userProfile.value.selectedUserType == 'Technician') {
+      final tech = fetchedTechnicians.firstWhere(
+        (t) => t.name == name,
+        orElse: () => Technician(id: 0),
+      );
+      selectedUserId.value = tech.id ?? 0;
+    }
   }
 
   // Device counts for Allocation Summary
@@ -310,6 +334,27 @@ class HomeController extends GetxController {
       repairedCameraCount.value +
       newSpeedGovernorCount.value +
       repairedSpeedGovernorCount.value;
+
+  // Method to fetch allocation counts from backend
+  Future<void> fetchAllocationCounts() async {
+    if (selectedUserId.value == 0) return;
+
+    try {
+      final response = await _apiService.getAllocationPreview(
+        userId: selectedUserId.value,
+        userType: selectedUserTypeValue.value,
+      );
+
+      if (response != null && response.status == true) {
+        newCameraCount.value = response.data?.newCameraDevicesCount ?? 0;
+        repairedCameraCount.value = response.data?.repairedCameraDevicesCount ?? 0;
+        newSpeedGovernorCount.value = response.data?.newSpeedGovernorDevicesCount ?? 0;
+        repairedSpeedGovernorCount.value = response.data?.repairedSpeedGovernorDevicesCount ?? 0;
+      }
+    } catch (e) {
+      debugPrint("Error fetching allocation counts: $e");
+    }
+  }
 
   // Method to clear all counts
   void clearDeviceCounts() {

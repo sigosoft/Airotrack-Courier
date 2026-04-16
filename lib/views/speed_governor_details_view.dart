@@ -128,8 +128,8 @@ class SpeedGovernorDetailsView extends StatelessWidget {
                   Expanded(
                     child: SizedBox(
                       height: 55,
-                      child: ElevatedButton(
-                        onPressed: () => controller.onNext(),
+                      child: Obx(() => ElevatedButton(
+                        onPressed: controller.isLoading.value ? null : () => controller.onNext(),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF4FC3F7), 
                           foregroundColor: Colors.white,
@@ -138,14 +138,20 @@ class SpeedGovernorDetailsView extends StatelessWidget {
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
-                        child: const Text(
-                          'Next',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
+                        child: controller.isLoading.value 
+                          ? const SizedBox(
+                              height: 20, 
+                              width: 20, 
+                              child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)
+                            )
+                          : const Text(
+                              'Next',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                      )),
                     ),
                   ),
                 ],

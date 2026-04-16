@@ -1,3 +1,4 @@
+import 'package:airotrack_courier/utils/width_height.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/camera_details_controller.dart';
@@ -59,40 +60,19 @@ class CameraDetailsView extends StatelessWidget {
                   decoration: _buildInputDecoration('Enter amount'),
                 ),
 
-                const SizedBox(height: 25),
-
-                // Device Status Field
-                _buildFieldLabel('Device Status'),
-                const SizedBox(height: 10),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 15),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey.shade300),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Obx(
-                    () => DropdownButtonHideUnderline(
-                      child: DropdownButton<String>(
-                        isExpanded: true,
-                        value: controller.selectedStatus.value,
-                        icon: const Icon(Icons.keyboard_arrow_down),
-                        items: controller.statusOptions.map((String value) {
-                          return DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(value),
-                          );
-                        }).toList(),
-                        onChanged: (value) => controller.updateStatus(value),
-                      ),
-                    ),
-                  ),
+                // camera name
+                height25,
+                _buildFieldLabel('Camera Name'),
+                height10,
+                 TextFormField(
+                  controller: controller.cameraNameController,
+                  keyboardType: TextInputType.text,
+                  decoration: _buildInputDecoration('Enter Camera name'),
                 ),
-
-                const SizedBox(height: 100), // Space for bottom buttons
               ],
             ),
           ),
-          
+
           // Bottom Buttons
           Align(
             alignment: Alignment.bottomCenter,
@@ -108,7 +88,9 @@ class CameraDetailsView extends StatelessWidget {
                       child: ElevatedButton(
                         onPressed: () => controller.onPreview(),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFE1F5FE), // Light blue
+                          backgroundColor: const Color(
+                            0xFFE1F5FE,
+                          ), // Light blue
                           foregroundColor: AppColors.primaryBlue,
                           elevation: 0,
                           shape: RoundedRectangleBorder(
@@ -127,27 +109,35 @@ class CameraDetailsView extends StatelessWidget {
                   ),
                   const SizedBox(width: 15),
                   // Next Button
-                  Expanded(
+                   Expanded(
                     child: SizedBox(
                       height: 55,
-                      child: ElevatedButton(
-                        onPressed: () => controller.onNext(),
+                      child: Obx(() => ElevatedButton(
+                        onPressed: controller.isLoading.value ? null : () => controller.onNext(),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF4FC3F7), // Match provided image color
+                          backgroundColor: const Color(
+                            0xFF4FC3F7,
+                          ), // Match provided image color
                           foregroundColor: Colors.white,
                           elevation: 0,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
-                        child: const Text(
-                          'Next',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
+                        child: controller.isLoading.value 
+                          ? const SizedBox(
+                              height: 20, 
+                              width: 20, 
+                              child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)
+                            )
+                          : const Text(
+                              'Next',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                      )),
                     ),
                   ),
                 ],
@@ -185,14 +175,8 @@ class CameraDetailsView extends StatelessWidget {
   InputDecoration _buildInputDecoration(String hint) {
     return InputDecoration(
       hintText: hint,
-      hintStyle: TextStyle(
-        color: Colors.grey.shade400,
-        fontSize: 16,
-      ),
-      contentPadding: const EdgeInsets.symmetric(
-        horizontal: 16,
-        vertical: 18,
-      ),
+      hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 16),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
         borderSide: BorderSide(color: Colors.grey.shade300),
@@ -203,9 +187,7 @@ class CameraDetailsView extends StatelessWidget {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(
-          color: AppColors.primaryBlue,
-        ),
+        borderSide: const BorderSide(color: AppColors.primaryBlue),
       ),
     );
   }
