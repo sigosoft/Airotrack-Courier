@@ -58,39 +58,81 @@ class SpeedGovernorDetailsView extends StatelessWidget {
                 ),
 
                 const SizedBox(height: 25),
-
-                // Device Status Field
-                _buildFieldLabel('Device Status'),
+                _buildFieldLabel('Speed Governor'),
                 const SizedBox(height: 10),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 15),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey.shade300),
-                    borderRadius: BorderRadius.circular(8),
+                TextFormField(
+                  controller: controller.governorSearchController,
+                  focusNode: controller.governorFocusNode,
+                  decoration: _buildInputDecoration('Search Speed Governor').copyWith(
+                    suffixIcon: Obx(() => controller.isGovernorSelected.value
+                        ? IconButton(
+                            icon: const Icon(Icons.clear, color: Colors.grey),
+                            onPressed: () {
+                              controller.governorSearchController.clear();
+                              controller.selectedGovernorId.value = null;
+                              controller.isGovernorSelected.value = false;
+                            },
+                          )
+                        : const Icon(Icons.search, color: Colors.grey)),
                   ),
-                  child: Obx(
-                    () => DropdownButtonHideUnderline(
-                      child: DropdownButton<String>(
-                        isExpanded: true,
-                        value: controller.selectedStatus.value,
-                        icon: const Icon(Icons.keyboard_arrow_down),
-                        items: controller.statusOptions.map((String value) {
-                          return DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(value),
-                          );
-                        }).toList(),
-                        onChanged: (value) => controller.updateStatus(value),
-                      ),
-                    ),
-                  ),
+                  onChanged: controller.filterGovernors,
+                  onTap: controller.onSearchFieldTap,
                 ),
+
+                // Search Results List
+                Obx(() => controller.showGovernorResults.value
+                    ? Container(
+                        constraints: const BoxConstraints(maxHeight: 200),
+                        margin: const EdgeInsets.only(top: 5),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(8),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.1),
+                              blurRadius: 10,
+                              offset: const Offset(0, 5),
+                            ),
+                          ],
+                          border: Border.all(color: Colors.grey.shade300),
+                        ),
+                        child: ListView.separated(
+                          shrinkWrap: true,
+                          padding: EdgeInsets.zero,
+                          itemCount: controller.filteredGovernors.length,
+                          separatorBuilder: (context, index) => Divider(
+                            height: 1,
+                            color: Colors.grey.shade200,
+                          ),
+                          itemBuilder: (context, index) {
+                            final governor = controller.filteredGovernors[index];
+                            return ListTile(
+                              title: Text(
+                                governor.sgModel ?? "Unknown Model",
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              subtitle: Text(
+                                "${governor.vehicleModel ?? ""} - ${governor.companyName ?? ""}",
+                                style: TextStyle(
+                                  color: Colors.grey.shade600,
+                                  fontSize: 12,
+                                ),
+                              ),
+                              onTap: () => controller.selectGovernor(governor),
+                            );
+                          },
+                        ),
+                      )
+                    : const SizedBox.shrink()),
 
                 const SizedBox(height: 100), // Space for bottom buttons
               ],
             ),
           ),
-          
+
           // Bottom Buttons
           Align(
             alignment: Alignment.bottomCenter,
@@ -106,7 +148,9 @@ class SpeedGovernorDetailsView extends StatelessWidget {
                       child: ElevatedButton(
                         onPressed: () => controller.onPreview(),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFE1F5FE), // Light blue
+                          backgroundColor: const Color(
+                            0xFFE1F5FE,
+                          ), // Light blue
                           foregroundColor: AppColors.primaryBlue,
                           elevation: 0,
                           shape: RoundedRectangleBorder(
@@ -128,30 +172,37 @@ class SpeedGovernorDetailsView extends StatelessWidget {
                   Expanded(
                     child: SizedBox(
                       height: 55,
-                      child: Obx(() => ElevatedButton(
-                        onPressed: controller.isLoading.value ? null : () => controller.onNext(),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF4FC3F7), 
-                          foregroundColor: Colors.white,
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
-                        child: controller.isLoading.value 
-                          ? const SizedBox(
-                              height: 20, 
-                              width: 20, 
-                              child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)
-                            )
-                          : const Text(
-                              'Next',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
+                      child: Obx(
+                        () => ElevatedButton(
+                          onPressed: controller.isLoading.value
+                              ? null
+                              : () => controller.onNext(),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF4FC3F7),
+                            foregroundColor: Colors.white,
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
                             ),
-                      )),
+                          ),
+                          child: controller.isLoading.value
+                              ? const SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white,
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                              : const Text(
+                                  'Next',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                        ),
+                      ),
                     ),
                   ),
                 ],
@@ -189,14 +240,8 @@ class SpeedGovernorDetailsView extends StatelessWidget {
   InputDecoration _buildInputDecoration(String hint) {
     return InputDecoration(
       hintText: hint,
-      hintStyle: TextStyle(
-        color: Colors.grey.shade400,
-        fontSize: 16,
-      ),
-      contentPadding: const EdgeInsets.symmetric(
-        horizontal: 16,
-        vertical: 18,
-      ),
+      hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 16),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
         borderSide: BorderSide(color: Colors.grey.shade300),
@@ -207,9 +252,7 @@ class SpeedGovernorDetailsView extends StatelessWidget {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(
-          color: AppColors.primaryBlue,
-        ),
+        borderSide: const BorderSide(color: AppColors.primaryBlue),
       ),
     );
   }

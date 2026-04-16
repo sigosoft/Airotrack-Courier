@@ -1,10 +1,8 @@
 import 'package:airotrack_courier/utils/app_colors.dart';
 import 'package:airotrack_courier/utils/width_height.dart';
-import 'package:airotrack_courier/views/home_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/login_controller.dart';
-import '../bindings/home_binding.dart';
 import '../widgets/custom_loading_indicator.dart';
 
 class LoginView extends StatelessWidget {
