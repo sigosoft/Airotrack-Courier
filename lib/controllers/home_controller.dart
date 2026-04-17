@@ -320,6 +320,11 @@ class HomeController extends GetxController {
       );
       selectedUserId.value = tech.id ?? 0;
     }
+
+    // NEW: Fetch existing allocation counts for the selected user immediately
+    if (selectedUserId.value != 0) {
+      fetchAllocationCounts();
+    }
   }
 
   // Device counts for Allocation Summary

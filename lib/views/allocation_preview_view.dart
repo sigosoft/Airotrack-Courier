@@ -126,7 +126,7 @@ class AllocationPreviewView extends StatelessWidget {
                       height: 55,
                       child: ElevatedButton(
                         onPressed: () {
-                          Get.to(() => const AllocationSuccessView());
+                          Get.to(() =>  AllocationSuccessScreen());
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Color(0xFF4FC3F7),

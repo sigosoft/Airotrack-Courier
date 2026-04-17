@@ -23,6 +23,7 @@ class CameraDetailsController extends GetxController {
 
 
   void onPreview() {
+    Get.find<HomeController>().fetchAllocationCounts();
     Get.to(() => const AllocationPreviewView());
   }
 

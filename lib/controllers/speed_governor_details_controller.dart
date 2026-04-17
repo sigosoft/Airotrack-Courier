@@ -47,6 +47,7 @@ class SpeedGovernorDetailsController extends GetxController {
   }
 
   void onPreview() {
+    Get.find<HomeController>().fetchAllocationCounts();
     Get.to(() => const AllocationPreviewView());
   }
 
