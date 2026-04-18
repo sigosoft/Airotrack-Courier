@@ -16,6 +16,7 @@ class CameraDetailsView extends StatelessWidget {
     final height = mediaQuery.size.height;
 
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       backgroundColor: AppColors.white,
       appBar: AppBar(
         backgroundColor: AppColors.primaryBlue,
@@ -64,7 +65,7 @@ class CameraDetailsView extends StatelessWidget {
                 height25,
                 _buildFieldLabel('Camera Name'),
                 height10,
-                 TextFormField(
+                TextFormField(
                   controller: controller.cameraNameController,
                   keyboardType: TextInputType.text,
                   decoration: _buildInputDecoration('Enter Camera name'),
@@ -109,35 +110,42 @@ class CameraDetailsView extends StatelessWidget {
                   ),
                   const SizedBox(width: 15),
                   // Next Button
-                   Expanded(
+                  Expanded(
                     child: SizedBox(
                       height: 55,
-                      child: Obx(() => ElevatedButton(
-                        onPressed: controller.isLoading.value ? null : () => controller.onNext(),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(
-                            0xFF4FC3F7,
-                          ), // Match provided image color
-                          foregroundColor: Colors.white,
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
-                        child: controller.isLoading.value 
-                          ? const SizedBox(
-                              height: 20, 
-                              width: 20, 
-                              child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)
-                            )
-                          : const Text(
-                              'Next',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
+                      child: Obx(
+                        () => ElevatedButton(
+                          onPressed: controller.isLoading.value
+                              ? null
+                              : () => controller.onNext(),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(
+                              0xFF4FC3F7,
+                            ), // Match provided image color
+                            foregroundColor: Colors.white,
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
                             ),
-                      )),
+                          ),
+                          child: controller.isLoading.value
+                              ? const SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white,
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                              : const Text(
+                                  'Next',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                        ),
+                      ),
                     ),
                   ),
                 ],
