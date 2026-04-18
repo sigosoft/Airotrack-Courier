@@ -2,7 +2,6 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../utils/app_colors.dart';
-import 'home_view.dart';
 import 'invoice_view.dart';
 
 class AllocationSuccessScreen extends StatelessWidget {
