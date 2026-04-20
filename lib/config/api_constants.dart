@@ -8,12 +8,14 @@ class ApiConstants {
   static const String privacyPolicy = "privacyPolicy";
   static const String termsAndConditions = "termsAndConditions";
   static const String aboutUs = "aboutUs";
-  
+
   // Camera & Speed Governor
-  static const String cameraSpeedGovernorTemporaryStorage = "cameraSpeedGovernorTemporaryStorage";
+  static const String cameraSpeedGovernorTemporaryStorage =
+      "cameraSpeedGovernorTemporaryStorage";
   static const String cameraSpeedGovernorPreview = "cameraSpeedGovernorPreview";
   static const String speedGovernors = "getSpeedGovernorData";
-  static const String cameraSpeedGovernorAllocate = "cameraSpeedGovernorAllocate";
+  static const String cameraSpeedGovernorAllocate =
+      "cameraSpeedGovernorAllocate";
 
   // GPS
   static const String gpsTemporaryStorage = "gpsTemporaryStorage";

@@ -13,6 +13,7 @@ class SpeedGovernorDetailsView extends StatelessWidget {
     final width = mediaQuery.size.width;
     final height = mediaQuery.size.height;
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       backgroundColor: AppColors.white,
       appBar: AppBar(
         backgroundColor: AppColors.primaryBlue,
@@ -63,70 +64,78 @@ class SpeedGovernorDetailsView extends StatelessWidget {
                 TextFormField(
                   controller: controller.governorSearchController,
                   focusNode: controller.governorFocusNode,
-                  decoration: _buildInputDecoration('Search Speed Governor').copyWith(
-                    suffixIcon: Obx(() => controller.isGovernorSelected.value
-                        ? IconButton(
-                            icon: const Icon(Icons.clear, color: Colors.grey),
-                            onPressed: () {
-                              controller.governorSearchController.clear();
-                              controller.selectedGovernorId.value = null;
-                              controller.isGovernorSelected.value = false;
-                            },
-                          )
-                        : const Icon(Icons.search, color: Colors.grey)),
-                  ),
+                  decoration: _buildInputDecoration('Search Speed Governor')
+                      .copyWith(
+                        suffixIcon: Obx(
+                          () => controller.isGovernorSelected.value
+                              ? IconButton(
+                                  icon: const Icon(
+                                    Icons.clear,
+                                    color: Colors.grey,
+                                  ),
+                                  onPressed: () {
+                                    controller.governorSearchController.clear();
+                                    controller.selectedGovernorId.value = null;
+                                    controller.isGovernorSelected.value = false;
+                                  },
+                                )
+                              : const Icon(Icons.search, color: Colors.grey),
+                        ),
+                      ),
                   onChanged: controller.filterGovernors,
                   onTap: controller.onSearchFieldTap,
                 ),
 
                 // Search Results List
-                Obx(() => controller.showGovernorResults.value
-                    ? Container(
-                        constraints: const BoxConstraints(maxHeight: 200),
-                        margin: const EdgeInsets.only(top: 5),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(8),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.1),
-                              blurRadius: 10,
-                              offset: const Offset(0, 5),
-                            ),
-                          ],
-                          border: Border.all(color: Colors.grey.shade300),
-                        ),
-                        child: ListView.separated(
-                          shrinkWrap: true,
-                          padding: EdgeInsets.zero,
-                          itemCount: controller.filteredGovernors.length,
-                          separatorBuilder: (context, index) => Divider(
-                            height: 1,
-                            color: Colors.grey.shade200,
+                Obx(
+                  () => controller.showGovernorResults.value
+                      ? Container(
+                          constraints: const BoxConstraints(maxHeight: 200),
+                          margin: const EdgeInsets.only(top: 5),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(8),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.1),
+                                blurRadius: 10,
+                                offset: const Offset(0, 5),
+                              ),
+                            ],
+                            border: Border.all(color: Colors.grey.shade300),
                           ),
-                          itemBuilder: (context, index) {
-                            final governor = controller.filteredGovernors[index];
-                            return ListTile(
-                              title: Text(
-                                governor.sgModel ?? "Unknown Model",
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 14,
+                          child: ListView.separated(
+                            shrinkWrap: true,
+                            padding: EdgeInsets.zero,
+                            itemCount: controller.filteredGovernors.length,
+                            separatorBuilder: (context, index) =>
+                                Divider(height: 1, color: Colors.grey.shade200),
+                            itemBuilder: (context, index) {
+                              final governor =
+                                  controller.filteredGovernors[index];
+                              return ListTile(
+                                title: Text(
+                                  governor.sgModel ?? "Unknown Model",
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14,
+                                  ),
                                 ),
-                              ),
-                              subtitle: Text(
-                                "${governor.vehicleModel ?? ""} - ${governor.companyName ?? ""}",
-                                style: TextStyle(
-                                  color: Colors.grey.shade600,
-                                  fontSize: 12,
+                                subtitle: Text(
+                                  "${governor.vehicleModel ?? ""} - ${governor.companyName ?? ""}",
+                                  style: TextStyle(
+                                    color: Colors.grey.shade600,
+                                    fontSize: 12,
+                                  ),
                                 ),
-                              ),
-                              onTap: () => controller.selectGovernor(governor),
-                            );
-                          },
-                        ),
-                      )
-                    : const SizedBox.shrink()),
+                                onTap: () =>
+                                    controller.selectGovernor(governor),
+                              );
+                            },
+                          ),
+                        )
+                      : const SizedBox.shrink(),
+                ),
 
                 const SizedBox(height: 100), // Space for bottom buttons
               ],
