@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'utils/app_colors.dart';
+import 'controllers/app_lifecycle_controller.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -12,6 +13,8 @@ void main() async {
   } catch (e) {
     debugPrint("Hive initialization error: $e");
   }
+  // Initialize AppLifecycleController
+  Get.put(AppLifecycleController(), permanent: true);
   runApp(const MainApp());
 }
 
