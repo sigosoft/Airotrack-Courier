@@ -6,8 +6,12 @@ import 'utils/app_colors.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Hive.initFlutter();
-  await Hive.openBox('userBox');
+  try {
+    await Hive.initFlutter();
+    await Hive.openBox('userBox');
+  } catch (e) {
+    debugPrint("Hive initialization error: $e");
+  }
   runApp(const MainApp());
 }
 
@@ -19,10 +23,7 @@ class MainApp extends StatelessWidget {
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'AirTrack Courier',
-      theme: ThemeData(
-        primaryColor: AppColors.primaryBlue,
-        useMaterial3: true,
-      ),
+      theme: ThemeData(primaryColor: AppColors.primaryBlue, useMaterial3: true),
       home: const SplashView(),
     );
   }

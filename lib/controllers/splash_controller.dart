@@ -4,6 +4,8 @@ import 'package:hive_flutter/hive_flutter.dart';
 import '../views/login_view.dart';
 import '../views/home_view.dart';
 import '../bindings/home_binding.dart';
+import '../utils/network_info.dart';
+import '../views/noInternet.dart';
 
 class SplashController extends GetxController {
   @override
@@ -14,7 +16,15 @@ class SplashController extends GetxController {
   }
 
   void _startTimer() {
-    Timer(const Duration(seconds: 3), () {
+    Timer(const Duration(seconds: 3), () async {
+      // Check for network before proceeding
+      bool connected = await isNetworkAvailable();
+
+      if (!connected) {
+        Get.offAll(() => const NoInternet());
+        return;
+      }
+
       var box = Hive.box('userBox');
       String? token = box.get('token');
 
