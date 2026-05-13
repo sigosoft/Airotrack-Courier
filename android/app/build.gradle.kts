@@ -16,7 +16,7 @@ android {
     }
 
     kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_17.toString()
+        jvmTarget = "17"
     }
 
     defaultConfig {
@@ -32,6 +32,10 @@ android {
 
     buildTypes {
         release {
+            // Explicitly disable minification to prevent stripping necessary code
+            isMinifyEnabled = false
+            isShrinkResources = false
+            
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig = signingConfigs.getByName("debug")

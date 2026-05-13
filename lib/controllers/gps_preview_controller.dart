@@ -29,6 +29,9 @@ class GpsPreviewController extends GetxController {
   Future<void> fetchPreviewData() async {
     isLoading.value = true;
     try {
+      if (!Hive.isBoxOpen('userBox')) {
+        await Hive.openBox('userBox');
+      }
       var box = Hive.box('userBox');
       String? userDataString = box.get('userData');
       String userId = "";
@@ -115,6 +118,9 @@ class GpsPreviewController extends GetxController {
   Future<void> allocateDevices() async {
     isActionLoading.value = true;
     try {
+      if (!Hive.isBoxOpen('userBox')) {
+        await Hive.openBox('userBox');
+      }
       var box = Hive.box('userBox');
       String? userDataString = box.get('userData');
       String userId = "";
@@ -145,7 +151,7 @@ class GpsPreviewController extends GetxController {
           backgroundColor: Colors.green,
           colorText: Colors.white,
         );
-        Get.offAll(() =>  AllocationSuccessScreen());
+        Get.offAll(() => AllocationSuccessScreen());
       } else {
         Get.snackbar(
           "Error",

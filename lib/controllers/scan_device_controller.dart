@@ -37,6 +37,9 @@ class ScanDeviceController extends GetxController {
         String imei = barcode.rawValue!;
         _scannedBarcodes.add(imei);
 
+        if (!Hive.isBoxOpen('userBox')) {
+          await Hive.openBox('userBox');
+        }
         var box = Hive.box('userBox');
         String? userDataString = box.get('userData');
         String userId = "";

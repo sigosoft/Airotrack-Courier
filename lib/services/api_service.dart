@@ -24,27 +24,25 @@ class ApiService {
   );
 
   ApiService() {
+    _dio.options.connectTimeout = const Duration(seconds: 60);
+    _dio.options.receiveTimeout = const Duration(seconds: 60);
+
     _dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (RequestOptions options, RequestInterceptorHandler handler) {
-          final box = Hive.box('userBox');
-          final token = box.get('token');
-          if (token != null) {
-            options.headers['Authorization'] = 'Bearer $token';
+          try {
+            if (Hive.isBoxOpen('userBox')) {
+              final box = Hive.box('userBox');
+              final token = box.get('token');
+              if (token != null) {
+                options.headers['Authorization'] = 'Bearer $token';
+              }
+            }
+          } catch (e) {
+            debugPrint("Interceptor storage error: $e");
           }
           return handler.next(options);
         },
-      ),
-    );
-
-    _dio.interceptors.add(
-      LogInterceptor(
-        requestHeader: true,
-        requestBody: true,
-        responseHeader: true,
-        responseBody: true,
-        error: true,
-        logPrint: (object) => debugPrint(object.toString()),
       ),
     );
   }
@@ -191,8 +189,8 @@ class ApiService {
         data: formData,
       );
 
-      bool status = response.data['status'] is bool 
-          ? response.data['status'] 
+      bool status = response.data['status'] is bool
+          ? response.data['status']
           : response.data['status']?.toString() == "true";
 
       return response.statusCode == 200 && status;

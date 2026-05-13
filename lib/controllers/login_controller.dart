@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:dio/dio.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'dart:convert';
+import '../utils/network_info.dart';
 import '../services/api_service.dart';
 import '../views/home_view.dart';
 import '../bindings/home_binding.dart';
@@ -47,6 +48,10 @@ class LoginController extends GetxController {
       final response = await _apiService.login(username, password);
 
       if (response != null && response.status == "true") {
+        // Ensure box is open
+        if (!Hive.isBoxOpen('userBox')) {
+          await Hive.openBox('userBox');
+        }
         var box = Hive.box('userBox');
         box.put('token', response.data?.details?.token);
         box.put('userData', jsonEncode(response.data?.details?.toJson()));
@@ -72,24 +77,38 @@ class LoginController extends GetxController {
       }
     } catch (e) {
       String errorMessage = "Something went wrong. Please try again later.";
+      
       if (e is DioException) {
-        var data = e.response?.data;
-        if (data != null && data is Map && data['message'] != null) {
-          var msg = data['message'];
-          if (msg is String) {
-            errorMessage = msg;
-          } else if (msg is Map && msg.isNotEmpty) {
-            var firstError = msg.values.first;
-            errorMessage = (firstError is List && firstError.isNotEmpty)
-                ? firstError.first.toString()
-                : firstError.toString();
-          } else {
-            errorMessage = msg.toString();
-          }
+        if (e.type == DioExceptionType.connectionTimeout || 
+            e.type == DioExceptionType.receiveTimeout ||
+            e.type == DioExceptionType.sendTimeout) {
+          errorMessage = "Connection timed out. Please check your network speed.";
+        } else if (e.type == DioExceptionType.connectionError) {
+          errorMessage = "No internet connection or server unreachable.";
+        } else if (e.type == DioExceptionType.badCertificate) {
+          errorMessage = "Security certificate error. Please check your system date/time.";
+        } else if (e.type == DioExceptionType.unknown) {
+          errorMessage = "Network Error: ${e.error ?? e.message ?? 'Server connection failed'}";
         } else {
-          errorMessage = e.message ?? errorMessage;
+          var data = e.response?.data;
+          if (data != null && data is Map && data['message'] != null) {
+            var msg = data['message'];
+            if (msg is String) {
+              errorMessage = msg;
+            } else if (msg is Map && msg.isNotEmpty) {
+              var firstError = msg.values.first;
+              errorMessage = (firstError is List && firstError.isNotEmpty)
+                  ? firstError.first.toString()
+                  : firstError.toString();
+            } else {
+              errorMessage = msg.toString();
+            }
+          } else {
+            errorMessage = e.message ?? "Server error (${e.response?.statusCode ?? 'unknown'})";
+          }
         }
       }
+      
       Get.snackbar(
         "Error",
         errorMessage,

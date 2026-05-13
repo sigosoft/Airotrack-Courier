@@ -268,7 +268,10 @@ class HomeController extends GetxController {
     loadUserData();
   }
 
-  void loadUserData() {
+  Future<void> loadUserData() async {
+    if (!Hive.isBoxOpen('userBox')) {
+      await Hive.openBox('userBox');
+    }
     var box = Hive.box('userBox');
     String? userDataString = box.get('userData');
     if (userDataString != null) {
@@ -352,9 +355,12 @@ class HomeController extends GetxController {
 
       if (response != null && response.status == true) {
         newCameraCount.value = response.data?.newCameraDevicesCount ?? 0;
-        repairedCameraCount.value = response.data?.repairedCameraDevicesCount ?? 0;
-        newSpeedGovernorCount.value = response.data?.newSpeedGovernorDevicesCount ?? 0;
-        repairedSpeedGovernorCount.value = response.data?.repairedSpeedGovernorDevicesCount ?? 0;
+        repairedCameraCount.value =
+            response.data?.repairedCameraDevicesCount ?? 0;
+        newSpeedGovernorCount.value =
+            response.data?.newSpeedGovernorDevicesCount ?? 0;
+        repairedSpeedGovernorCount.value =
+            response.data?.repairedSpeedGovernorDevicesCount ?? 0;
       }
     } catch (e) {
       debugPrint("Error fetching allocation counts: $e");

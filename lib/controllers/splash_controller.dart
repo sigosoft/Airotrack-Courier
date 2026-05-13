@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../views/login_view.dart';
@@ -17,22 +18,33 @@ class SplashController extends GetxController {
 
   void _startTimer() {
     Timer(const Duration(seconds: 3), () async {
-      // Check for network before proceeding
-      bool connected = await isNetworkAvailable();
+      try {
+        // Check for network before proceeding
+        bool connected = await isNetworkAvailable();
 
-      if (!connected) {
-        Get.offAll(() => const NoInternet());
-        return;
-      }
+        if (!connected) {
+          Get.offAll(() => const NoInternet());
+          return;
+        }
 
-      var box = Hive.box('userBox');
-      String? token = box.get('token');
+        // Ensure Hive is ready
+        if (!Hive.isBoxOpen('userBox')) {
+          await Hive.openBox('userBox');
+        }
 
-      if (token != null && token.isNotEmpty) {
-        // Token exists, navigate to Home
-        Get.offAll(() => const HomeView(), binding: HomeBinding());
-      } else {
-        // No token, navigate to Login
+        var box = Hive.box('userBox');
+        String? token = box.get('token');
+
+        if (token != null && token.isNotEmpty) {
+          // Token exists, navigate to Home
+          Get.offAll(() => const HomeView(), binding: HomeBinding());
+        } else {
+          // No token, navigate to Login
+          Get.offAll(() => LoginView());
+        }
+      } catch (e) {
+        debugPrint("Navigation error in Splash: $e");
+        // Fallback to Login screen if something fails
         Get.offAll(() => LoginView());
       }
     });
