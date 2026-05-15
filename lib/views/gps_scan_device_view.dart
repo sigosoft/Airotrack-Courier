@@ -21,6 +21,7 @@ class GpsScanDeviceView extends GetView<ScanDeviceController> {
 
     return Scaffold(
       backgroundColor: AppColors.white,
+      resizeToAvoidBottomInset: false,
       body: SafeArea(
         child: Column(
           children: [
@@ -45,6 +46,77 @@ class GpsScanDeviceView extends GetView<ScanDeviceController> {
 
             const Spacer(),
 
+            // Manual IMEI Entry
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: width * 0.05),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Container(
+                      height: 50,
+                      decoration: BoxDecoration(
+                        color: AppColors.white,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: AppColors.grey.withOpacity(0.5),
+                        ),
+                      ),
+                      child: TextField(
+                        controller: controller.imeiController,
+                        keyboardType: TextInputType.number,
+                        decoration: const InputDecoration(
+                          hintText: 'Enter IMEI Number',
+                          contentPadding: EdgeInsets.symmetric(horizontal: 15),
+                          border: InputBorder.none,
+                          hintStyle: TextStyle(
+                            color: AppColors.grey,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  GestureDetector(
+                    onTap: () => controller.addManualImei(),
+                    child: Container(
+                      height: 50,
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      decoration: BoxDecoration(
+                        color: AppColors.primaryBlue,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Center(
+                        child: Text(
+                          'Add',
+                          style: TextStyle(
+                            color: AppColors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            const Spacer(),
+
+            // OR Divider
+            const Center(
+              child: Text(
+                'OR',
+                style: TextStyle(
+                  color: AppColors.grey,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
+            ),
+
+            const Spacer(),
+
             // Scanner Container
             Center(
               child: Container(
@@ -62,21 +134,65 @@ class GpsScanDeviceView extends GetView<ScanDeviceController> {
                 ),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(15),
-                  child: Stack(
-                    children: [
-                      // Camera Preview
-                      MobileScanner(
-                        controller: controller.cameraController,
-                        onDetect: (capture) => controller.onDetect(capture),
-                      ),
+                  child: Obx(() {
+                    if (controller.isScannerActive.value) {
+                      return Stack(
+                        children: [
+                          // Camera Preview
+                          MobileScanner(
+                            key: ValueKey(controller.scannerKeyCounter.value),
+                            controller: controller.cameraController,
+                            onDetect: (capture) => controller.onDetect(capture),
+                          ),
 
-                      // Corner Brackets Overlay
-                      CustomPaint(
-                        size: Size(width * 0.9, height * 0.55),
-                        painter: ScannerCornerPainter(),
-                      ),
-                    ],
-                  ),
+                          // Corner Brackets Overlay
+                          CustomPaint(
+                            size: Size(width * 0.9, height * 0.55),
+                            painter: ScannerCornerPainter(),
+                          ),
+                        ],
+                      );
+                    } else {
+                      return GestureDetector(
+                        onTap: () => controller.startScanning(),
+                        child: Stack(
+                          children: [
+                            Container(
+                              width: width * 0.9,
+                              height: height * 0.55,
+                              color: AppColors.primaryBlue.withOpacity(0.05),
+                              child: const Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.qr_code_scanner_rounded,
+                                      size: 80,
+                                      color: AppColors.primaryBlue,
+                                    ),
+                                    SizedBox(height: 16),
+                                    Text(
+                                      'Tap to Scan',
+                                      style: TextStyle(
+                                        color: AppColors.primaryBlue,
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            // Corner Brackets Overlay
+                            CustomPaint(
+                              size: Size(width * 0.9, height * 0.55),
+                              painter: ScannerCornerPainter(),
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+                  }),
                 ),
               ),
             ),
@@ -87,7 +203,9 @@ class GpsScanDeviceView extends GetView<ScanDeviceController> {
             Padding(
               padding: EdgeInsets.symmetric(
                 horizontal: width * 0.05,
-                vertical: height * 0.05,
+                vertical:
+                    height *
+                    0.03, // Reduced vertical padding to fit the new field
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -104,7 +222,7 @@ class GpsScanDeviceView extends GetView<ScanDeviceController> {
                     icon: Icons.visibility_outlined,
                     label: 'Preview',
                     onPressed: () {
-                    Get.to(() => const GpsPreviewView());
+                      Get.to(() => const GpsPreviewView());
                     },
                     width: width * 0.42,
                   ),
@@ -160,11 +278,10 @@ class GpsScanDeviceView extends GetView<ScanDeviceController> {
 class ScannerCornerPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
-    final paint =
-        Paint()
-          ..color = AppColors.black
-          ..strokeWidth = 4
-          ..style = PaintingStyle.stroke;
+    final paint = Paint()
+      ..color = AppColors.primaryBlue
+      ..strokeWidth = 4
+      ..style = PaintingStyle.stroke;
 
     const cornerLength = 40.0;
     const padding = 15.0;
