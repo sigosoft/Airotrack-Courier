@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import '../config/api_constants.dart';
@@ -290,7 +291,34 @@ class ApiService {
 
   Future<Map<String, dynamic>?> deleteTemporaryStorage() async {
     try {
-      FormData formData = FormData.fromMap({});
+      String userId = "";
+      String userType = "2";
+
+      if (!Hive.isBoxOpen('userBox')) {
+        await Hive.openBox('userBox');
+      }
+      var box = Hive.box('userBox');
+      String? userDataString = box.get('userData');
+      if (userDataString != null) {
+        try {
+          Map<String, dynamic> data = jsonDecode(userDataString);
+          userId = data['id']?.toString() ?? "";
+          userType = data['role_id']?.toString() ?? "2";
+        } catch (e) {
+          debugPrint("Error reading user data: $e");
+        }
+      }
+
+      if (userId.isEmpty) {
+        debugPrint("Skipping deleteTemporaryStorage because userId is empty");
+        return null;
+      }
+
+      FormData formData = FormData.fromMap({
+        "user_type": userType,
+        "user_id": userId,
+      });
+
       Response response = await _dio.post(
         ApiConstants.deleteTemporaryStorage,
         data: formData,
@@ -298,8 +326,14 @@ class ApiService {
       if (response.statusCode == 200) {
         return response.data;
       }
+    } on DioException catch (e) {
+      debugPrint(
+        "Dio Error in deleteTemporaryStorage: ${e.response?.statusCode} - ${e.response?.data}",
+      );
+      return null;
     } catch (e) {
-      rethrow;
+      debugPrint("Error in deleteTemporaryStorage: $e");
+      return null;
     }
     return null;
   }

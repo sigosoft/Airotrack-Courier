@@ -70,9 +70,9 @@ class SpeedGovernorDetailsController extends GetxController {
       return;
     }
 
-    final results = allGovernors.where((g) => 
-      g.searchString.contains(query.toLowerCase())
-    ).toList();
+    final results = allGovernors
+        .where((g) => g.searchString.contains(query.toLowerCase()))
+        .toList();
 
     filteredGovernors.assignAll(results);
     showGovernorResults.value = results.isNotEmpty;
@@ -96,15 +96,15 @@ class SpeedGovernorDetailsController extends GetxController {
   }
 
   Future<void> onNext() async {
-    if (serialController.text.isEmpty || 
-        amountController.text.isEmpty || 
+    if (serialController.text.isEmpty ||
+        /* amountController.text.isEmpty || */
         selectedGovernorId.value == null) {
       Get.snackbar(
-        'Error', 
+        'Error',
         'Please fill in all required fields and select a Speed Governor',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red.withOpacity(0.1),
-        colorText: Colors.red
+        colorText: Colors.red,
       );
       return;
     }
@@ -112,14 +112,14 @@ class SpeedGovernorDetailsController extends GetxController {
     isLoading.value = true;
     try {
       final homeController = Get.find<HomeController>();
-      
+
       final success = await _apiService.postDeviceDetails(
         userType: homeController.selectedUserTypeValue.value,
         userId: homeController.selectedUserId.value,
         deviceType: 2, // Speed Governor
         speedGovernorId: selectedGovernorId.value.toString(),
         serialNo: serialController.text,
-        amount: amountController.text,
+        amount: "0", // amountController.text,
       );
 
       if (success) {
@@ -136,17 +136,23 @@ class SpeedGovernorDetailsController extends GetxController {
         // Navigate to unified AllocationPreviewView
         Get.to(() => const AllocationPreviewView());
       } else {
-        Get.snackbar('Error', 'Failed to store speed governor details.',
+        Get.snackbar(
+          'Error',
+          'Failed to store speed governor details.',
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.red.withOpacity(0.1),
-          colorText: Colors.red);
+          colorText: Colors.red,
+        );
       }
     } catch (e) {
       debugPrint("Error in onNext: $e");
-      Get.snackbar('Error', 'An unexpected error occurred.',
+      Get.snackbar(
+        'Error',
+        'An unexpected error occurred.',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red.withOpacity(0.1),
-        colorText: Colors.red);
+        colorText: Colors.red,
+      );
     } finally {
       isLoading.value = false;
     }

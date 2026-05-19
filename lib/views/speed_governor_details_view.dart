@@ -50,13 +50,13 @@ class SpeedGovernorDetailsView extends StatelessWidget {
                 const SizedBox(height: 25),
 
                 // Amount Field
-                _buildFieldLabel('Amount'),
-                const SizedBox(height: 10),
-                TextFormField(
-                  controller: controller.amountController,
-                  keyboardType: TextInputType.number,
-                  decoration: _buildInputDecoration('Enter amount'),
-                ),
+                // _buildFieldLabel('Amount'),
+                // const SizedBox(height: 10),
+                // TextFormField(
+                //   controller: controller.amountController,
+                //   keyboardType: TextInputType.number,
+                //   decoration: _buildInputDecoration('Enter amount'),
+                // ),
 
                 const SizedBox(height: 25),
                 _buildFieldLabel('Speed Governor'),

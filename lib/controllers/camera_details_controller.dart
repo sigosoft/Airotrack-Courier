@@ -28,7 +28,7 @@ class CameraDetailsController extends GetxController {
   }
 
   Future<void> onNext() async {
-    if (serialController.text.isEmpty || amountController.text.isEmpty || cameraNameController.text.isEmpty) {
+    if (serialController.text.isEmpty || /*amountController.text.isEmpty ||*/ cameraNameController.text.isEmpty) {
       Get.snackbar('Error', 'Please fill in all required fields',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red.withOpacity(0.1),
@@ -46,7 +46,7 @@ class CameraDetailsController extends GetxController {
         deviceType: 1, // Camera
         serialNo: serialController.text,
         cameraName: cameraNameController.text,
-        amount: amountController.text,
+        amount: "0", // amountController.text,
       );
 
       if (success) {

@@ -14,7 +14,9 @@ class GpsPreviewView extends StatelessWidget {
   Widget build(BuildContext context) {
     final HomeController homeController = Get.find<HomeController>();
     // Inject the preview controller
-    final GpsPreviewController previewController = Get.put(GpsPreviewController());
+    final GpsPreviewController previewController = Get.put(
+      GpsPreviewController(),
+    );
 
     return Scaffold(
       backgroundColor: AppColors.white,
@@ -54,10 +56,14 @@ class GpsPreviewView extends StatelessWidget {
                 height20,
                 Obx(() {
                   if (previewController.isLoading.value) {
-                    return const Center(child: Padding(
-                      padding: EdgeInsets.all(20.0),
-                      child: CircularProgressIndicator(),
-                    ));
+                    return const Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(20.0),
+                        child: CircularProgressIndicator(
+                          color: AppColors.primaryBlue,
+                        ),
+                      ),
+                    );
                   }
                   return Container(
                     padding: const EdgeInsets.all(20),
@@ -68,11 +74,20 @@ class GpsPreviewView extends StatelessWidget {
                     ),
                     child: Column(
                       children: [
-                        _buildInfoRow("Total Devices", previewController.totalDevices.value),
+                        _buildInfoRow(
+                          "Total Devices",
+                          previewController.totalDevices.value,
+                        ),
                         const SizedBox(height: 15),
-                        _buildInfoRow("New Devices", previewController.newDevices.value),
+                        _buildInfoRow(
+                          "New Devices",
+                          previewController.newDevices.value,
+                        ),
                         const SizedBox(height: 15),
-                        _buildInfoRow("Repaired Devices", previewController.repairedDevices.value),
+                        _buildInfoRow(
+                          "Repaired Devices",
+                          previewController.repairedDevices.value,
+                        ),
                       ],
                     ),
                   );
@@ -108,7 +123,10 @@ class GpsPreviewView extends StatelessWidget {
                         ),
                         child: const Text(
                           'Add More',
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),
@@ -119,6 +137,16 @@ class GpsPreviewView extends StatelessWidget {
                       height: 55,
                       child: ElevatedButton(
                         onPressed: () {
+                          if (previewController.totalDevices.value == "0") {
+                            Get.snackbar(
+                              'Error',
+                              'No devices added to preview',
+                              snackPosition: SnackPosition.BOTTOM,
+                              backgroundColor: Colors.red.withOpacity(0.1),
+                              colorText: Colors.red,
+                            );
+                            return;
+                          }
                           Get.to(() => const GpsDevicePreviewView());
                         },
                         style: ElevatedButton.styleFrom(
@@ -131,7 +159,10 @@ class GpsPreviewView extends StatelessWidget {
                         ),
                         child: const Text(
                           'Submit',
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),

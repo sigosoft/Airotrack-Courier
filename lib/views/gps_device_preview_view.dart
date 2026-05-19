@@ -37,14 +37,29 @@ class GpsDevicePreviewView extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  "Repaired Device", // Alternatively, can be generic "Selected Devices"
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF333333),
-                  ),
-                ),
+                Obx(() {
+                  String title = "Repaired Device";
+                  int repairedCount =
+                      int.tryParse(previewController.repairedDevices.value) ??
+                      0;
+                  int newCount =
+                      int.tryParse(previewController.newDevices.value) ?? 0;
+
+                  if (repairedCount > 0) {
+                    title = "Repaired Device";
+                  } else if (newCount > 0) {
+                    title = "New Device";
+                  }
+
+                  return Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF333333),
+                    ),
+                  );
+                }),
                 const SizedBox(height: 20),
                 Expanded(
                   child: Container(
