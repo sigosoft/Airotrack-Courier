@@ -134,10 +134,15 @@ class GpsPreviewController extends GetxController {
         } catch (e) {}
       }
 
+      final homeController = Get.find<HomeController>();
       final response = await _apiService.gpsAllocate(
         userType: "2",
         userId: userId,
         reallocate: "0",
+        courierId:
+            homeController.selectedCourierRequest.value?.courierId
+                ?.toString() ??
+            '',
       );
 
       bool isSuccess =

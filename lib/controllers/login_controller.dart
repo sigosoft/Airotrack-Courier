@@ -53,7 +53,9 @@ class LoginController extends GetxController {
           await Hive.openBox('userBox');
         }
         var box = Hive.box('userBox');
-        box.put('token', response.data?.details?.token);
+        final token = response.data?.details?.token;
+        box.put('token', token);
+        debugPrint("LoginController received token: $token");
         box.put('userData', jsonEncode(response.data?.details?.toJson()));
 
         Get.snackbar(

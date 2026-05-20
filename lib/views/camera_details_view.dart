@@ -2,6 +2,7 @@ import 'package:airotrack_courier/utils/width_height.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/camera_details_controller.dart';
+import '../controllers/home_controller.dart';
 import '../utils/app_colors.dart';
 import '../widgets/custom_back_button.dart';
 
@@ -80,76 +81,83 @@ class CameraDetailsView extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.all(20),
               color: AppColors.white,
-              child: Row(
-                children: [
-                  // Preview Button
-                  Expanded(
-                    child: SizedBox(
-                      height: 55,
-                      child: ElevatedButton(
-                        onPressed: () => controller.onPreview(),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(
-                            0xFFE1F5FE,
-                          ), // Light blue
-                          foregroundColor: AppColors.primaryBlue,
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
-                        child: const Text(
-                          'Preview',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 15),
-                  // Next Button
-                  Expanded(
-                    child: SizedBox(
-                      height: 55,
-                      child: Obx(
-                        () => ElevatedButton(
-                          onPressed: controller.isLoading.value
-                              ? null
-                              : () => controller.onNext(),
+              child: Obx(() {
+                // Trigger rebuild on count changes
+                final homeController = Get.find<HomeController>();
+                homeController.newCameraCount.value;
+                homeController.repairedCameraCount.value;
+                final bool limitReached = controller.isCameraLimitReached;
+                return Row(
+                  children: [
+                    // Preview Button
+                    Expanded(
+                      child: SizedBox(
+                        height: 55,
+                        child: ElevatedButton(
+                          onPressed: () => controller.onPreview(),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(
-                              0xFF4FC3F7,
-                            ), // Match provided image color
-                            foregroundColor: Colors.white,
+                              0xFFE1F5FE,
+                            ), // Light blue
+                            foregroundColor: AppColors.primaryBlue,
                             elevation: 0,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),
                             ),
                           ),
-                          child: controller.isLoading.value
-                              ? const SizedBox(
-                                  height: 20,
-                                  width: 20,
-                                  child: CircularProgressIndicator(
-                                    color: Colors.white,
-                                    strokeWidth: 2,
-                                  ),
-                                )
-                              : const Text(
-                                  'Next',
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
+                          child: const Text(
+                            'Preview',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ],
-              ),
+                    // Next Button — hidden when limit is reached
+                    if (!limitReached) ...[
+                      const SizedBox(width: 15),
+                      Expanded(
+                        child: SizedBox(
+                          height: 55,
+                          child: ElevatedButton(
+                            onPressed: controller.isLoading.value
+                                ? null
+                                : () => controller.onNext(),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(
+                                0xFF4FC3F7,
+                              ), // Match provided image color
+                              foregroundColor: Colors.white,
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                            child: controller.isLoading.value
+                                ? const SizedBox(
+                                    height: 20,
+                                    width: 20,
+                                    child: CircularProgressIndicator(
+                                      color: Colors.white,
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                : const Text(
+                                    'Next',
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
+                );
+              }),
             ),
           ),
         ],

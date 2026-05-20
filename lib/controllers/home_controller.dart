@@ -9,10 +9,13 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'dart:io';
 import 'dart:convert';
+import 'dart:async';
 import '../models/user_profile.dart';
 import '../services/api_service.dart';
 import '../models/dealers_response.dart';
 import '../models/technicians_response.dart';
+import '../models/courier_requests_response.dart';
+import '../models/companies_response.dart';
 
 class HomeController extends GetxController {
   // Observable user profile state
@@ -20,15 +23,64 @@ class HomeController extends GetxController {
     name: 'Jobin',
     date: '05 Jun 2023',
     time: '08:22:11 AM',
-    userTypeOptions: ['Dealer', 'Technician'],
+    userTypeOptions: ['Dealer', 'Technician', 'Customer'],
     selectedUserType: 'Select User Type',
   ).obs;
 
   final ApiService _apiService = ApiService();
   final RxList<Dealer> fetchedDealers = <Dealer>[].obs;
   final RxList<Technician> fetchedTechnicians = <Technician>[].obs;
+  final RxList<Company> fetchedCompanies = <Company>[].obs;
   final RxBool isDealersLoading = false.obs;
   final RxBool isTechniciansLoading = false.obs;
+  final RxBool isCompaniesLoading = false.obs;
+  String _lastQuery = '';
+  Timer? _searchDebounce;
+
+  final RxList<CourierRequest> courierRequestsList = <CourierRequest>[].obs;
+  final RxBool isCourierRequestsLoading = false.obs;
+  final Rxn<CourierRequest> selectedCourierRequest = Rxn<CourierRequest>();
+  final RxBool isAllocating = false.obs;
+
+  List<CourierRequest> get filteredCourierRequests {
+    String? selectedType = userProfile.value.selectedUserType;
+    if (selectedType == 'Dealer') {
+      return courierRequestsList
+          .where((req) => req.courierUserType == 1)
+          .toList();
+    } else if (selectedType == 'Technician') {
+      return courierRequestsList
+          .where((req) => req.courierUserType == 2)
+          .toList();
+    } else if (selectedType == 'Customer') {
+      return courierRequestsList
+          .where((req) => req.courierUserType == 3)
+          .toList();
+    }
+    return courierRequestsList;
+  }
+
+  Future<void> fetchCourierRequests() async {
+    isCourierRequestsLoading.value = true;
+    try {
+      final response = await _apiService.getCourierRequests();
+      if (response != null && response.status == true) {
+        courierRequestsList.value = response.data?.courierRequests ?? [];
+      } else {
+        Get.snackbar(
+          "Error",
+          response?.message ?? "Failed to fetch courier requests",
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red.withOpacity(0.7),
+          colorText: Colors.white,
+        );
+      }
+    } catch (e) {
+      _handleApiError(e);
+    } finally {
+      isCourierRequestsLoading.value = false;
+    }
+  }
 
   int versionToCode(String version) {
     final parts = version.split('.');
@@ -113,12 +165,20 @@ class HomeController extends GetxController {
       } else if (value == 'Technician') {
         selectedUserTypeValue.value = 2;
         fetchTechnicians();
+      } else if (value == 'Customer') {
+        selectedUserTypeValue.value = 3;
+        fetchCustomers();
       }
 
       // Reset dealer search if user type changes
       selectedDealerName.value = '';
       selectedUserId.value = 0;
       selectedDeviceType.value = '';
+      isDealerSelected.value = false;
+      selectedCourierRequest.value = null;
+
+      // Fetch courier requests when user type changes
+      fetchCourierRequests();
     }
   }
 
@@ -129,16 +189,22 @@ class HomeController extends GetxController {
       if (response != null && response.status == "true") {
         fetchedDealers.value = response.data?.dealers ?? [];
       } else {
-        Get.snackbar(
-          "Error",
-          response?.message ?? "Failed to fetch dealers",
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red.withOpacity(0.7),
-          colorText: Colors.white,
-        );
+        if (keyword.isEmpty) {
+          Get.snackbar(
+            "Error",
+            response?.message ?? "Failed to fetch dealers",
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.red.withOpacity(0.7),
+            colorText: Colors.white,
+          );
+        }
       }
     } catch (e) {
-      _handleApiError(e);
+      if (keyword.isEmpty) {
+        _handleApiError(e);
+      } else {
+        debugPrint("Error fetching dealers during search: $e");
+      }
     } finally {
       isDealersLoading.value = false;
     }
@@ -151,18 +217,55 @@ class HomeController extends GetxController {
       if (response != null && response.status == "true") {
         fetchedTechnicians.value = response.data?.technicians ?? [];
       } else {
-        Get.snackbar(
-          "Error",
-          response?.message ?? "Failed to fetch technicians",
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red.withOpacity(0.7),
-          colorText: Colors.white,
-        );
+        if (keyword.isEmpty) {
+          Get.snackbar(
+            "Error",
+            response?.message ?? "Failed to fetch technicians",
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.red.withOpacity(0.7),
+            colorText: Colors.white,
+          );
+        }
       }
     } catch (e) {
-      _handleApiError(e);
+      if (keyword.isEmpty) {
+        _handleApiError(e);
+      } else {
+        debugPrint("Error fetching technicians during search: $e");
+      }
     } finally {
       isTechniciansLoading.value = false;
+    }
+  }
+
+  Future<void> fetchCustomers({String keyword = ""}) async {
+    isCompaniesLoading.value = true;
+    try {
+      final response = await _apiService.getCompanies(keyword: keyword);
+      bool isSuccess =
+          response != null &&
+          (response.status == true || response.status == "true");
+      if (isSuccess) {
+        fetchedCompanies.value = response.data ?? [];
+      } else {
+        if (keyword.isEmpty) {
+          Get.snackbar(
+            "Error",
+            response?.message ?? "Failed to fetch customers",
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.red.withOpacity(0.7),
+            colorText: Colors.white,
+          );
+        }
+      }
+    } catch (e) {
+      if (keyword.isEmpty) {
+        _handleApiError(e);
+      } else {
+        debugPrint("Error fetching customers during search: $e");
+      }
+    } finally {
+      isCompaniesLoading.value = false;
     }
   }
 
@@ -219,40 +322,67 @@ class HomeController extends GetxController {
   // Device types list
   final List<String> deviceTypeOptions = ['GPS', 'Camera', 'Speed Governor'];
 
-  // Method to filter results as user types
+  // Method to filter results as user types (calls API with query keyword)
   void filterResults(String query) {
+    _lastQuery = query;
     if (query.isEmpty) {
+      _searchDebounce?.cancel();
       filteredResults.clear();
       showResults.value = false;
       isDealerSelected.value = false;
       selectedDealerName.value = '';
     } else {
-      if (userProfile.value.selectedUserType == 'Dealer') {
-        final results = fetchedDealers
-            .where(
-              (d) => (d.firstName ?? '').toLowerCase().contains(
-                query.toLowerCase(),
-              ),
-            )
-            .map((d) => d.firstName ?? '')
-            .toList();
-        filteredResults.value = results;
-      } else if (userProfile.value.selectedUserType == 'Technician') {
-        final results = fetchedTechnicians
-            .where(
-              (t) => (t.name ?? '').toLowerCase().contains(query.toLowerCase()),
-            )
-            .map((t) => t.name ?? '')
-            .toList();
-        filteredResults.value = results;
+      if (isDealerSelected.value && selectedDealerName.value == query) {
+        _searchDebounce?.cancel();
+        return;
       }
+      _searchDebounce?.cancel();
+      _searchDebounce = Timer(const Duration(milliseconds: 500), () async {
+        if (_lastQuery != query) return;
 
-      showResults.value = filteredResults.isNotEmpty;
+        if (userProfile.value.selectedUserType == 'Dealer') {
+          await fetchDealers(keyword: query);
+          if (_lastQuery != query) return;
+          final results = fetchedDealers
+              .where(
+                (d) => (d.firstName ?? '').toLowerCase().contains(
+                  query.toLowerCase(),
+                ),
+              )
+              .map((d) => d.firstName ?? '')
+              .toList();
+          filteredResults.value = results;
+        } else if (userProfile.value.selectedUserType == 'Technician') {
+          await fetchTechnicians(keyword: query);
+          if (_lastQuery != query) return;
+          final results = fetchedTechnicians
+              .where(
+                (t) =>
+                    (t.name ?? '').toLowerCase().contains(query.toLowerCase()),
+              )
+              .map((t) => t.name ?? '')
+              .toList();
+          filteredResults.value = results;
+        } else if (userProfile.value.selectedUserType == 'Customer') {
+          await fetchCustomers(keyword: query);
+          if (_lastQuery != query) return;
+          final results = fetchedCompanies
+              .where(
+                (c) =>
+                    (c.name ?? '').toLowerCase().contains(query.toLowerCase()),
+              )
+              .map((c) => c.name ?? '')
+              .toList();
+          filteredResults.value = results;
+        }
 
-      // If text changed after selection, reset selection
-      if (selectedDealerName.value != query) {
-        isDealerSelected.value = false;
-      }
+        showResults.value = filteredResults.isNotEmpty;
+
+        // If text changed after selection, reset selection
+        if (selectedDealerName.value != query) {
+          isDealerSelected.value = false;
+        }
+      });
     }
   }
 
@@ -266,6 +396,7 @@ class HomeController extends GetxController {
   void onInit() {
     super.onInit();
     loadUserData();
+    fetchCourierRequests();
   }
 
   Future<void> loadUserData() async {
@@ -322,6 +453,12 @@ class HomeController extends GetxController {
         orElse: () => Technician(id: 0),
       );
       selectedUserId.value = tech.id ?? 0;
+    } else if (userProfile.value.selectedUserType == 'Customer') {
+      final company = fetchedCompanies.firstWhere(
+        (c) => c.name == name,
+        orElse: () => Company(id: 0),
+      );
+      selectedUserId.value = company.id ?? 0;
     }
 
     // NEW: Fetch existing allocation counts for the selected user immediately
@@ -386,6 +523,7 @@ class HomeController extends GetxController {
     userProfile.update((val) {
       val?.selectedUserType = 'Select User Type';
     });
+    selectedCourierRequest.value = null;
   }
 
   // Method to update device type

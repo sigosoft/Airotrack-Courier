@@ -51,6 +51,16 @@ class SpeedGovernorDetailsController extends GetxController {
     Get.to(() => const AllocationPreviewView());
   }
 
+  /// Returns true when the entered speed governor count has reached the allowed limit.
+  bool get isSpeedGovernorLimitReached {
+    final homeController = Get.find<HomeController>();
+    final req = homeController.selectedCourierRequest.value;
+    if (req == null) return false;
+    final int allowed = (req.noOfNewSpeedGovernors ?? 0) + (req.noOfServiceSpeedGovernors ?? 0);
+    final int entered = homeController.newSpeedGovernorCount.value + homeController.repairedSpeedGovernorCount.value;
+    return allowed > 0 && entered >= allowed;
+  }
+
   Future<void> fetchGovernors() async {
     try {
       final response = await _apiService.getSpeedGovernors();
@@ -109,6 +119,27 @@ class SpeedGovernorDetailsController extends GetxController {
       return;
     }
 
+    final homeController = Get.find<HomeController>();
+    if (homeController.selectedCourierRequest.value != null) {
+      final req = homeController.selectedCourierRequest.value!;
+      final int allowedSgCount =
+          (req.noOfNewSpeedGovernors ?? 0) +
+          (req.noOfServiceSpeedGovernors ?? 0);
+      final int enteredSgCount =
+          homeController.newSpeedGovernorCount.value +
+          homeController.repairedSpeedGovernorCount.value;
+      if (enteredSgCount >= allowedSgCount) {
+        Get.snackbar(
+          'Error',
+          'You have already entered the maximum allowed number of Speed Governors ($allowedSgCount).',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red.withOpacity(0.1),
+          colorText: Colors.red,
+        );
+        return;
+      }
+    }
+
     isLoading.value = true;
     try {
       final homeController = Get.find<HomeController>();
@@ -133,8 +164,20 @@ class SpeedGovernorDetailsController extends GetxController {
         selectedGovernorId.value = null;
         isGovernorSelected.value = false;
 
-        // Navigate to unified AllocationPreviewView
-        Get.to(() => const AllocationPreviewView());
+        // Check if limit is now reached — navigate to preview
+        final req = homeController.selectedCourierRequest.value;
+        if (req != null) {
+          final int allowedSgCount = (req.noOfNewSpeedGovernors ?? 0) + (req.noOfServiceSpeedGovernors ?? 0);
+          final int enteredSgCount = homeController.newSpeedGovernorCount.value + homeController.repairedSpeedGovernorCount.value;
+          if (enteredSgCount >= allowedSgCount) {
+            Get.to(() => const AllocationPreviewView());
+            return;
+          }
+          // Count not yet reached — stay on the same screen for next entry
+        } else {
+          // No courier request limit set — navigate to preview as before
+          Get.to(() => const AllocationPreviewView());
+        }
       } else {
         Get.snackbar(
           'Error',

@@ -11,6 +11,8 @@ import '../models/terms_and_conditions_response.dart';
 import '../models/about_us_response.dart';
 import '../models/allocation_preview_response.dart';
 import '../models/speed_governor_response.dart';
+import '../models/courier_requests_response.dart';
+import '../models/companies_response.dart';
 
 import 'package:hive_flutter/hive_flutter.dart';
 
@@ -31,10 +33,11 @@ class ApiService {
     _dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (RequestOptions options, RequestInterceptorHandler handler) {
+          String? token;
           try {
             if (Hive.isBoxOpen('userBox')) {
               final box = Hive.box('userBox');
-              final token = box.get('token');
+              token = box.get('token');
               if (token != null) {
                 options.headers['Authorization'] = 'Bearer $token';
               }
@@ -42,7 +45,44 @@ class ApiService {
           } catch (e) {
             debugPrint("Interceptor storage error: $e");
           }
+
+          // Log request details
+          debugPrint("┌──────────────────────────────────────────────────────────");
+          debugPrint("│ [API Request] ${options.method.toUpperCase()} ${options.uri}");
+          debugPrint("│ Token: ${token ?? 'No Token'}");
+          debugPrint("│ Headers: ${options.headers}");
+          if (options.queryParameters.isNotEmpty) {
+            debugPrint("│ Query Params: ${options.queryParameters}");
+          }
+          if (options.data != null) {
+            if (options.data is FormData) {
+              final formData = options.data as FormData;
+              final fields = formData.fields.map((f) => "${f.key}: ${f.value}").join(", ");
+              debugPrint("│ Form Fields: {$fields}");
+            } else {
+              debugPrint("│ Body: ${options.data}");
+            }
+          }
+          debugPrint("└──────────────────────────────────────────────────────────");
+
           return handler.next(options);
+        },
+        onResponse: (Response response, ResponseInterceptorHandler handler) {
+          debugPrint("┌──────────────────────────────────────────────────────────");
+          debugPrint("│ [API Response] ${response.requestOptions.method.toUpperCase()} ${response.requestOptions.uri}");
+          debugPrint("│ Status Code: ${response.statusCode}");
+          debugPrint("│ Data: ${response.data}");
+          debugPrint("└──────────────────────────────────────────────────────────");
+          return handler.next(response);
+        },
+        onError: (DioException err, ErrorInterceptorHandler handler) {
+          debugPrint("┌──────────────────────────────────────────────────────────");
+          debugPrint("│ [API Error] ${err.requestOptions.method.toUpperCase()} ${err.requestOptions.uri}");
+          debugPrint("│ Status Code: ${err.response?.statusCode}");
+          debugPrint("│ Error: ${err.message}");
+          debugPrint("│ Response Data: ${err.response?.data}");
+          debugPrint("└──────────────────────────────────────────────────────────");
+          return handler.next(err);
         },
       ),
     );
@@ -59,6 +99,20 @@ class ApiService {
 
       if (response.statusCode == 200) {
         return LoginResponse.fromJson(response.data);
+      } else {
+        return null;
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<CourierRequestsResponse?> getCourierRequests() async {
+    try {
+      Response response = await _dio.get(ApiConstants.courierRequests);
+
+      if (response.statusCode == 200) {
+        return CourierRequestsResponse.fromJson(response.data);
       } else {
         return null;
       }
@@ -93,6 +147,23 @@ class ApiService {
 
       if (response.statusCode == 200) {
         return TechniciansResponse.fromJson(response.data);
+      } else {
+        return null;
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<CompaniesResponse?> getCompanies({String keyword = ""}) async {
+    try {
+      Response response = await _dio.get(
+        ApiConstants.companies,
+        queryParameters: {"keyword": keyword},
+      );
+
+      if (response.statusCode == 200) {
+        return CompaniesResponse.fromJson(response.data);
       } else {
         return null;
       }
@@ -342,12 +413,14 @@ class ApiService {
     required String userType,
     required String userId,
     required String reallocate,
+    required String courierId,
   }) async {
     try {
       FormData formData = FormData.fromMap({
         "user_type": userType,
         "user_id": userId,
         "reallocate": reallocate,
+        "courier_id": courierId,
       });
       Response response = await _dio.post(
         ApiConstants.gpsAllocate,
@@ -357,6 +430,30 @@ class ApiService {
         return response.data;
       }
     } catch (e) {
+      rethrow;
+    }
+    return null;
+  }
+  Future<Map<String, dynamic>?> cameraSpeedGovernorAllocate({
+    required String userType,
+    required String userId,
+    required String courierId,
+  }) async {
+    try {
+      FormData formData = FormData.fromMap({
+        "user_type": userType,
+        "user_id": userId,
+        "courier_id": courierId,
+      });
+      Response response = await _dio.post(
+        ApiConstants.cameraSpeedGovernorAllocate,
+        data: formData,
+      );
+      if (response.statusCode == 200) {
+        return response.data;
+      }
+    } catch (e) {
+      debugPrint("Error in cameraSpeedGovernorAllocate: $e");
       rethrow;
     }
     return null;

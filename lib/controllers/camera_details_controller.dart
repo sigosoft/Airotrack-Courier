@@ -17,6 +17,7 @@ class CameraDetailsController extends GetxController {
   void onClose() {
     serialController.dispose();
     amountController.dispose();
+    cameraNameController.dispose();
     super.onClose();
   }
 
@@ -27,13 +28,40 @@ class CameraDetailsController extends GetxController {
     Get.to(() => const AllocationPreviewView());
   }
 
+  /// Returns true when the entered camera count has reached the allowed limit.
+  bool get isCameraLimitReached {
+    final homeController = Get.find<HomeController>();
+    final req = homeController.selectedCourierRequest.value;
+    if (req == null) return false;
+    final int allowed = (req.noOfNewCameras ?? 0) + (req.noOfServiceCameras ?? 0);
+    final int entered = homeController.newCameraCount.value + homeController.repairedCameraCount.value;
+    return allowed > 0 && entered >= allowed;
+  }
+
   Future<void> onNext() async {
-    if (serialController.text.isEmpty || /*amountController.text.isEmpty ||*/ cameraNameController.text.isEmpty) {
+    if (serialController.text.isEmpty || cameraNameController.text.isEmpty) {
       Get.snackbar('Error', 'Please fill in all required fields',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red.withOpacity(0.1),
         colorText: Colors.red);
       return;
+    }
+
+    final HomeController homeController = Get.find<HomeController>();
+    if (homeController.selectedCourierRequest.value != null) {
+      final req = homeController.selectedCourierRequest.value!;
+      final int allowedCameraCount = (req.noOfNewCameras ?? 0) + (req.noOfServiceCameras ?? 0);
+      final int enteredCameraCount = homeController.newCameraCount.value + homeController.repairedCameraCount.value;
+      if (enteredCameraCount >= allowedCameraCount) {
+        Get.snackbar(
+          'Error',
+          'You have already entered the maximum allowed number of cameras ($allowedCameraCount).',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red.withOpacity(0.1),
+          colorText: Colors.red,
+        );
+        return;
+      }
     }
 
     isLoading.value = true;
@@ -46,7 +74,7 @@ class CameraDetailsController extends GetxController {
         deviceType: 1, // Camera
         serialNo: serialController.text,
         cameraName: cameraNameController.text,
-        amount: "0", // amountController.text,
+        amount: "0",
       );
 
       if (success) {
@@ -58,8 +86,20 @@ class CameraDetailsController extends GetxController {
         amountController.clear();
         cameraNameController.clear();
 
-        // Navigate to unified AllocationPreviewView
-        Get.to(() => const AllocationPreviewView());
+        // Check if limit is now reached — navigate to preview
+        final req = homeController.selectedCourierRequest.value;
+        if (req != null) {
+          final int allowedCameraCount = (req.noOfNewCameras ?? 0) + (req.noOfServiceCameras ?? 0);
+          final int enteredCameraCount = homeController.newCameraCount.value + homeController.repairedCameraCount.value;
+          if (enteredCameraCount >= allowedCameraCount) {
+            Get.to(() => const AllocationPreviewView());
+            return;
+          }
+          // Count not yet reached — stay on the same screen for next entry
+        } else {
+          // No courier request limit set — navigate to preview as before
+          Get.to(() => const AllocationPreviewView());
+        }
       } else {
         Get.snackbar('Error', 'Failed to store camera details. Please try again.',
           snackPosition: SnackPosition.BOTTOM,

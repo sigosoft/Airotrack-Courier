@@ -34,6 +34,7 @@ class SplashController extends GetxController {
 
         var box = Hive.box('userBox');
         String? token = box.get('token');
+        debugPrint("SplashController retrieved token: $token");
 
         if (token != null && token.isNotEmpty) {
           // Token exists, navigate to Home

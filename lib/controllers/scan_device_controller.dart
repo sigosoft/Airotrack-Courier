@@ -5,9 +5,51 @@ import 'package:get/get.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../services/api_service.dart';
+import 'home_controller.dart';
 
 class ScanDeviceController extends GetxController {
   final MobileScannerController cameraController = MobileScannerController(autoStart: false);
+  final scannedGpsCount = 0.obs;
+
+  @override
+  void onInit() {
+    super.onInit();
+    fetchCurrentGpsCount();
+  }
+
+  Future<void> fetchCurrentGpsCount() async {
+    try {
+      if (!Hive.isBoxOpen('userBox')) {
+        await Hive.openBox('userBox');
+      }
+      var box = Hive.box('userBox');
+      String? userDataString = box.get('userData');
+      String userId = "";
+
+      if (userDataString != null) {
+        Map<String, dynamic> data = jsonDecode(userDataString);
+        userId = data['id']?.toString() ?? "";
+      }
+
+      if (userId.isNotEmpty) {
+        final response = await _apiService.getGpsPreview(
+          userType: "2",
+          userId: userId,
+        );
+
+        bool isSuccess = response != null &&
+            (response['status'] == true || response['status'] == "true");
+
+        if (isSuccess && response['data'] != null) {
+          final data = response['data'];
+          final totalCountStr = data['total_imei_count']?.toString() ?? "0";
+          scannedGpsCount.value = int.tryParse(totalCountStr) ?? 0;
+        }
+      }
+    } catch (e) {
+      debugPrint("Error fetching current GPS count: $e");
+    }
+  }
 
   // Observable for flash state
   final isFlashOn = false.obs;
@@ -25,6 +67,15 @@ class ScanDeviceController extends GetxController {
     cameraController.dispose();
     imeiController.dispose();
     super.onClose();
+  }
+
+  /// Returns true when the scanned GPS count has reached the allowed limit.
+  bool get isGpsLimitReached {
+    final homeController = Get.find<HomeController>();
+    final req = homeController.selectedCourierRequest.value;
+    if (req == null) return false;
+    final int allowed = (req.noOfNewGps ?? 0) + (req.noOfServiceGps ?? 0);
+    return allowed > 0 && scannedGpsCount.value >= allowed;
   }
 
   // Toggle Flash
@@ -125,6 +176,24 @@ class ScanDeviceController extends GetxController {
   Future<void> _processImei(String imei) async {
     if (_isProcessing) return;
     _isProcessing = true;
+
+    final HomeController homeController = Get.find<HomeController>();
+    if (homeController.selectedCourierRequest.value != null) {
+      final req = homeController.selectedCourierRequest.value!;
+      final int allowedGpsCount = (req.noOfNewGps ?? 0) + (req.noOfServiceGps ?? 0);
+      if (scannedGpsCount.value >= allowedGpsCount) {
+        _isProcessing = false;
+        Get.snackbar(
+          "Limit Reached",
+          "You have already scanned the maximum allowed number of GPS devices ($allowedGpsCount).",
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red.withOpacity(0.7),
+          colorText: Colors.white,
+        );
+        return;
+      }
+    }
+
     _scannedBarcodes.add(imei);
 
     if (!Hive.isBoxOpen('userBox')) {
@@ -151,6 +220,7 @@ class ScanDeviceController extends GetxController {
       );
 
       if (response != null && response['status'] == true) {
+        scannedGpsCount.value++;
         Get.snackbar(
           "Success",
           response['message'] ?? "Temporary GPS data stored successfully.",
