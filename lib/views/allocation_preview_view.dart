@@ -171,11 +171,13 @@ class AllocationPreviewView extends StatelessWidget {
                                               .selectedUserId
                                               .value
                                               .toString(),
-                                          courierId: homeController
-                                              .selectedCourierRequest
-                                              .value
-                                              ?.courierId
-                                              ?.toString() ?? '',
+                                          courierId:
+                                              homeController
+                                                  .selectedCourierRequest
+                                                  .value
+                                                  ?.courierId
+                                                  ?.toString() ??
+                                              '',
                                         );
                                     final success =
                                         result != null &&
