@@ -8,7 +8,9 @@ import '../services/api_service.dart';
 import 'home_controller.dart';
 
 class ScanDeviceController extends GetxController {
-  final MobileScannerController cameraController = MobileScannerController(autoStart: false);
+  final MobileScannerController cameraController = MobileScannerController(
+    autoStart: false,
+  );
   final scannedGpsCount = 0.obs;
 
   @override
@@ -37,7 +39,8 @@ class ScanDeviceController extends GetxController {
           userId: userId,
         );
 
-        bool isSuccess = response != null &&
+        bool isSuccess =
+            response != null &&
             (response['status'] == true || response['status'] == "true");
 
         if (isSuccess && response['data'] != null) {
@@ -54,7 +57,7 @@ class ScanDeviceController extends GetxController {
   // Observable for flash state
   final isFlashOn = false.obs;
   final TextEditingController imeiController = TextEditingController();
-  
+
   // Observable for scanner activity state
   final isScannerActive = false.obs;
   final scannerKeyCounter = 0.obs;
@@ -180,7 +183,8 @@ class ScanDeviceController extends GetxController {
     final HomeController homeController = Get.find<HomeController>();
     if (homeController.selectedCourierRequest.value != null) {
       final req = homeController.selectedCourierRequest.value!;
-      final int allowedGpsCount = (req.noOfNewGps ?? 0) + (req.noOfServiceGps ?? 0);
+      final int allowedGpsCount =
+          (req.noOfNewGps ?? 0) + (req.noOfServiceGps ?? 0);
       if (scannedGpsCount.value >= allowedGpsCount) {
         _isProcessing = false;
         Get.snackbar(
