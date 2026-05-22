@@ -440,10 +440,9 @@ class ApiService {
         "user_type": userType,
         "user_id": userId,
         "reallocate": reallocate,
+        "courier_id": courierId,
       };
-      if (courierId.isNotEmpty) {
-        data["courier_id"] = courierId;
-      } else {
+      if (courierId.isEmpty) {
         data["airo_payment_transaction_id"] = "0";
       }
       FormData formData = FormData.fromMap(data);
