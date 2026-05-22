@@ -64,15 +64,15 @@ class GpsPreviewController extends GetxController {
         othersRepairedDevices.value =
             data['others_repaired_devices_count']?.toString() ?? "0";
 
-        // Parse device data array
+        // Parse only repaired devices (total_repaired_devices)
         List<Map<String, String>> parsedList = [];
-        if (data['device_data'] != null && data['device_data'] is List) {
-          for (var item in data['device_data']) {
+        if (data['total_repaired_devices'] != null &&
+            data['total_repaired_devices'] is List) {
+          for (var item in data['total_repaired_devices']) {
             String imei = item['imei']?.toString() ?? "Unknown";
             String? dealerName;
             if (item['vehicle_device_data'] != null &&
                 item['vehicle_device_data'] is Map) {
-              // If it already has a dealer name
               dealerName =
                   item['vehicle_device_data']['dealer_name']?.toString() ??
                   item['vehicle_device_data']['user_name']?.toString();
@@ -87,8 +87,10 @@ class GpsPreviewController extends GetxController {
 
             parsedList.add({"imei": imei, "dealer": dealerName});
           }
-        } else if (data['imeis'] != null && data['imeis'] is List) {
-          for (var imei in data['imeis']) {
+        } else if (data['repaired_imeis'] != null &&
+            data['repaired_imeis'] is List) {
+          // Fallback: use repaired_imeis list if total_repaired_devices is unavailable
+          for (var imei in data['repaired_imeis']) {
             final HomeController homeController = Get.find<HomeController>();
             var dealerName = homeController.selectedDealerName.value;
             if (dealerName.isEmpty) dealerName = "Dealer";
@@ -172,8 +174,9 @@ class GpsPreviewController extends GetxController {
 
       final String courierIdVal = (req?.id ?? req?.courierId)?.toString() ?? '';
       final int othersRepaired = int.tryParse(othersRepairedDevices.value) ?? 0;
-      final String reallocateValue =
-          courierIdVal.isNotEmpty ? "0" : (othersRepaired > 0 ? "1" : "0");
+      final String reallocateValue = courierIdVal.isNotEmpty
+          ? "0"
+          : (othersRepaired > 0 ? "1" : "0");
 
       final response = await _apiService.gpsAllocate(
         userType: targetUserType,
