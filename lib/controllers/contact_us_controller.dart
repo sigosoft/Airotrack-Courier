@@ -27,7 +27,7 @@ class ContactUsController extends GetxController {
           "Error",
           response?.message ?? "Failed to fetch contact details",
           snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red.withOpacity(0.7),
+          backgroundColor: Colors.red,
           colorText: Colors.white,
         );
       }
@@ -52,7 +52,7 @@ class ContactUsController extends GetxController {
       "Error",
       errorMessage,
       snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: Colors.red.withOpacity(0.7),
+      backgroundColor: Colors.red,
       colorText: Colors.white,
     );
   }

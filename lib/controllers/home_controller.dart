@@ -71,7 +71,7 @@ class HomeController extends GetxController {
           "Error",
           response?.message ?? "Failed to fetch courier requests",
           snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red.withOpacity(0.7),
+          backgroundColor: Colors.red,
           colorText: Colors.white,
         );
       }
@@ -194,7 +194,7 @@ class HomeController extends GetxController {
             "Error",
             response?.message ?? "Failed to fetch dealers",
             snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: Colors.red.withOpacity(0.7),
+            backgroundColor: Colors.red,
             colorText: Colors.white,
           );
         }
@@ -222,7 +222,7 @@ class HomeController extends GetxController {
             "Error",
             response?.message ?? "Failed to fetch technicians",
             snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: Colors.red.withOpacity(0.7),
+            backgroundColor: Colors.red,
             colorText: Colors.white,
           );
         }
@@ -253,7 +253,7 @@ class HomeController extends GetxController {
             "Error",
             response?.message ?? "Failed to fetch customers",
             snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: Colors.red.withOpacity(0.7),
+            backgroundColor: Colors.red,
             colorText: Colors.white,
           );
         }
@@ -293,7 +293,7 @@ class HomeController extends GetxController {
       "Error",
       errorMessage,
       snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: Colors.red.withOpacity(0.7),
+      backgroundColor: Colors.red,
       colorText: Colors.white,
     );
   }

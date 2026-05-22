@@ -158,6 +158,53 @@ class AllocationPreviewView extends StatelessWidget {
                           onPressed: isAllocating
                               ? null
                               : () async {
+                                  final req = homeController
+                                      .selectedCourierRequest
+                                      .value;
+                                  if (req != null) {
+                                    // 1. Camera Validation
+                                    final int allowedCameras =
+                                        (req.noOfNewCameras ?? 0) +
+                                        (req.noOfServiceCameras ?? 0);
+                                    final int enteredCameras =
+                                        homeController.newCameraCount.value +
+                                        homeController
+                                            .repairedCameraCount
+                                            .value;
+                                    if (enteredCameras != allowedCameras) {
+                                      Get.snackbar(
+                                        "Validation Error",
+                                        "Please enter the exact count of Cameras required ($allowedCameras devices). Current count: $enteredCameras.",
+                                        snackPosition: SnackPosition.BOTTOM,
+                                        backgroundColor: Colors.red,
+                                        colorText: Colors.white,
+                                      );
+                                      return;
+                                    }
+
+                                    // 2. Speed Governor Validation
+                                    final int allowedSgs =
+                                        (req.noOfNewSpeedGovernors ?? 0) +
+                                        (req.noOfServiceSpeedGovernors ?? 0);
+                                    final int enteredSgs =
+                                        homeController
+                                            .newSpeedGovernorCount
+                                            .value +
+                                        homeController
+                                            .repairedSpeedGovernorCount
+                                            .value;
+                                    if (enteredSgs != allowedSgs) {
+                                      Get.snackbar(
+                                        "Validation Error",
+                                        "Please enter the exact count of Speed Governors required ($allowedSgs devices). Current count: $enteredSgs.",
+                                        snackPosition: SnackPosition.BOTTOM,
+                                        backgroundColor: Colors.red,
+                                        colorText: Colors.white,
+                                      );
+                                      return;
+                                    }
+                                  }
+
                                   homeController.isAllocating.value = true;
                                   try {
                                     final apiService = ApiService();
@@ -172,10 +219,14 @@ class AllocationPreviewView extends StatelessWidget {
                                               .value
                                               .toString(),
                                           courierId:
-                                              homeController
-                                                  .selectedCourierRequest
-                                                  .value
-                                                  ?.courierId
+                                              (homeController
+                                                          .selectedCourierRequest
+                                                          .value
+                                                          ?.id ??
+                                                      homeController
+                                                          .selectedCourierRequest
+                                                          .value
+                                                          ?.courierId)
                                                   ?.toString() ??
                                               '',
                                         );
@@ -193,10 +244,8 @@ class AllocationPreviewView extends StatelessWidget {
                                         result?['message'] ??
                                             'Allocation failed. Please try again.',
                                         snackPosition: SnackPosition.BOTTOM,
-                                        backgroundColor: Colors.red.withOpacity(
-                                          0.1,
-                                        ),
-                                        colorText: Colors.red,
+                                        backgroundColor: Colors.red,
+                                        colorText: Colors.white,
                                       );
                                     }
                                   } catch (e) {
@@ -204,10 +253,8 @@ class AllocationPreviewView extends StatelessWidget {
                                       'Error',
                                       'An unexpected error occurred.',
                                       snackPosition: SnackPosition.BOTTOM,
-                                      backgroundColor: Colors.red.withOpacity(
-                                        0.1,
-                                      ),
-                                      colorText: Colors.red,
+                                      backgroundColor: Colors.red,
+                                      colorText: Colors.white,
                                     );
                                   } finally {
                                     homeController.isAllocating.value = false;

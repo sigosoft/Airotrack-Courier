@@ -47,8 +47,12 @@ class ApiService {
           }
 
           // Log request details
-          debugPrint("┌──────────────────────────────────────────────────────────");
-          debugPrint("│ [API Request] ${options.method.toUpperCase()} ${options.uri}");
+          debugPrint(
+            "┌──────────────────────────────────────────────────────────",
+          );
+          debugPrint(
+            "│ [API Request] ${options.method.toUpperCase()} ${options.uri}",
+          );
           debugPrint("│ Token: ${token ?? 'No Token'}");
           debugPrint("│ Headers: ${options.headers}");
           if (options.queryParameters.isNotEmpty) {
@@ -57,31 +61,47 @@ class ApiService {
           if (options.data != null) {
             if (options.data is FormData) {
               final formData = options.data as FormData;
-              final fields = formData.fields.map((f) => "${f.key}: ${f.value}").join(", ");
+              final fields = formData.fields
+                  .map((f) => "${f.key}: ${f.value}")
+                  .join(", ");
               debugPrint("│ Form Fields: {$fields}");
             } else {
               debugPrint("│ Body: ${options.data}");
             }
           }
-          debugPrint("└──────────────────────────────────────────────────────────");
+          debugPrint(
+            "└──────────────────────────────────────────────────────────",
+          );
 
           return handler.next(options);
         },
         onResponse: (Response response, ResponseInterceptorHandler handler) {
-          debugPrint("┌──────────────────────────────────────────────────────────");
-          debugPrint("│ [API Response] ${response.requestOptions.method.toUpperCase()} ${response.requestOptions.uri}");
+          debugPrint(
+            "┌──────────────────────────────────────────────────────────",
+          );
+          debugPrint(
+            "│ [API Response] ${response.requestOptions.method.toUpperCase()} ${response.requestOptions.uri}",
+          );
           debugPrint("│ Status Code: ${response.statusCode}");
           debugPrint("│ Data: ${response.data}");
-          debugPrint("└──────────────────────────────────────────────────────────");
+          debugPrint(
+            "└──────────────────────────────────────────────────────────",
+          );
           return handler.next(response);
         },
         onError: (DioException err, ErrorInterceptorHandler handler) {
-          debugPrint("┌──────────────────────────────────────────────────────────");
-          debugPrint("│ [API Error] ${err.requestOptions.method.toUpperCase()} ${err.requestOptions.uri}");
+          debugPrint(
+            "┌──────────────────────────────────────────────────────────",
+          );
+          debugPrint(
+            "│ [API Error] ${err.requestOptions.method.toUpperCase()} ${err.requestOptions.uri}",
+          );
           debugPrint("│ Status Code: ${err.response?.statusCode}");
           debugPrint("│ Error: ${err.message}");
           debugPrint("│ Response Data: ${err.response?.data}");
-          debugPrint("└──────────────────────────────────────────────────────────");
+          debugPrint(
+            "└──────────────────────────────────────────────────────────",
+          );
           return handler.next(err);
         },
       ),
@@ -416,12 +436,17 @@ class ApiService {
     required String courierId,
   }) async {
     try {
-      FormData formData = FormData.fromMap({
+      final Map<String, dynamic> data = {
         "user_type": userType,
         "user_id": userId,
         "reallocate": reallocate,
-        "courier_id": courierId,
-      });
+      };
+      if (courierId.isNotEmpty) {
+        data["courier_id"] = courierId;
+      } else {
+        data["airo_payment_transaction_id"] = "0";
+      }
+      FormData formData = FormData.fromMap(data);
       Response response = await _dio.post(
         ApiConstants.gpsAllocate,
         data: formData,
@@ -434,6 +459,7 @@ class ApiService {
     }
     return null;
   }
+
   Future<Map<String, dynamic>?> cameraSpeedGovernorAllocate({
     required String userType,
     required String userId,

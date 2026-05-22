@@ -21,21 +21,24 @@ class ScanDeviceController extends GetxController {
 
   Future<void> fetchCurrentGpsCount() async {
     try {
-      if (!Hive.isBoxOpen('userBox')) {
-        await Hive.openBox('userBox');
-      }
-      var box = Hive.box('userBox');
-      String? userDataString = box.get('userData');
-      String userId = "";
+      final HomeController homeController = Get.find<HomeController>();
+      String userId = homeController.selectedUserId.value.toString();
+      String userType = homeController.selectedUserTypeValue.value.toString();
 
-      if (userDataString != null) {
-        Map<String, dynamic> data = jsonDecode(userDataString);
-        userId = data['id']?.toString() ?? "";
+      final req = homeController.selectedCourierRequest.value;
+      if (req != null && (userType == "3" || userType == "11")) {
+        if (req.dealerId != null && req.dealerId != 0) {
+          userType = "1";
+          userId = req.dealerId.toString();
+        } else if (req.technicianId != null && req.technicianId != 0) {
+          userType = "2";
+          userId = req.technicianId.toString();
+        }
       }
 
-      if (userId.isNotEmpty) {
+      if (userId.isNotEmpty && userId != "0") {
         final response = await _apiService.getGpsPreview(
-          userType: "2",
+          userType: userType,
           userId: userId,
         );
 
@@ -132,7 +135,7 @@ class ScanDeviceController extends GetxController {
             "Already Scanned",
             "This IMEI has already been scanned.",
             snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: Colors.red.withOpacity(0.7),
+            backgroundColor: Colors.red,
             colorText: Colors.white,
           );
           // Briefly pause to prevent snackbar spam
@@ -155,7 +158,7 @@ class ScanDeviceController extends GetxController {
         "Error",
         "Please enter an IMEI number.",
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red.withOpacity(0.7),
+        backgroundColor: Colors.red,
         colorText: Colors.white,
       );
       return;
@@ -166,7 +169,7 @@ class ScanDeviceController extends GetxController {
         "Error",
         "This IMEI has already been added.",
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red.withOpacity(0.7),
+        backgroundColor: Colors.red,
         colorText: Colors.white,
       );
       return;
@@ -191,7 +194,7 @@ class ScanDeviceController extends GetxController {
           "Limit Reached",
           "You have already scanned the maximum allowed number of GPS devices ($allowedGpsCount).",
           snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red.withOpacity(0.7),
+          backgroundColor: Colors.red,
           colorText: Colors.white,
         );
         return;
@@ -200,25 +203,23 @@ class ScanDeviceController extends GetxController {
 
     _scannedBarcodes.add(imei);
 
-    if (!Hive.isBoxOpen('userBox')) {
-      await Hive.openBox('userBox');
-    }
-    var box = Hive.box('userBox');
-    String? userDataString = box.get('userData');
-    String userId = "";
+    String userType = homeController.selectedUserTypeValue.value.toString();
+    String userId = homeController.selectedUserId.value.toString();
 
-    if (userDataString != null) {
-      try {
-        Map<String, dynamic> data = jsonDecode(userDataString);
-        userId = data['id']?.toString() ?? "";
-      } catch (e) {
-        debugPrint("Error reading user data: $e");
+    final req = homeController.selectedCourierRequest.value;
+    if (req != null && (userType == "3" || userType == "11")) {
+      if (req.dealerId != null && req.dealerId != 0) {
+        userType = "1";
+        userId = req.dealerId.toString();
+      } else if (req.technicianId != null && req.technicianId != 0) {
+        userType = "2";
+        userId = req.technicianId.toString();
       }
     }
 
     try {
       final response = await _apiService.setGpsTemporaryStorage(
-        userType: "2",
+        userType: userType,
         userId: userId,
         imei: imei,
       );
@@ -229,7 +230,7 @@ class ScanDeviceController extends GetxController {
           "Success",
           response['message'] ?? "Temporary GPS data stored successfully.",
           snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.green.withOpacity(0.7),
+          backgroundColor: Colors.green,
           colorText: Colors.white,
         );
       } else {
@@ -238,13 +239,20 @@ class ScanDeviceController extends GetxController {
           "Error",
           response?['message'] ?? "Failed to store GPS data.",
           snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red.withOpacity(0.7),
+          backgroundColor: Colors.red,
           colorText: Colors.white,
         );
       }
     } catch (e) {
       _scannedBarcodes.remove(imei);
       debugPrint("Scan API Error: $e");
+      Get.snackbar(
+        "Error",
+        "Scan API Error: $e",
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
     } finally {
       // Add a small delay before allowing the next scan
       // to prevent immediate duplicate scan notifications

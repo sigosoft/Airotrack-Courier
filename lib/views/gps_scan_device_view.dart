@@ -1,5 +1,6 @@
 // ignore_for_file: deprecated_member_use
 
+import 'package:airotrack_courier/controllers/home_controller.dart';
 import 'package:airotrack_courier/views/gps_preview_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -74,7 +75,9 @@ class GpsScanDeviceView extends GetView<ScanDeviceController> {
                               keyboardType: TextInputType.number,
                               decoration: const InputDecoration(
                                 hintText: 'Enter IMEI Number',
-                                contentPadding: EdgeInsets.symmetric(horizontal: 15),
+                                contentPadding: EdgeInsets.symmetric(
+                                  horizontal: 15,
+                                ),
                                 border: InputBorder.none,
                                 hintStyle: TextStyle(
                                   color: AppColors.grey,
@@ -148,9 +151,12 @@ class GpsScanDeviceView extends GetView<ScanDeviceController> {
                               children: [
                                 // Camera Preview
                                 MobileScanner(
-                                  key: ValueKey(controller.scannerKeyCounter.value),
+                                  key: ValueKey(
+                                    controller.scannerKeyCounter.value,
+                                  ),
                                   controller: controller.cameraController,
-                                  onDetect: (capture) => controller.onDetect(capture),
+                                  onDetect: (capture) =>
+                                      controller.onDetect(capture),
                                 ),
 
                                 // Corner Brackets Overlay
@@ -168,10 +174,13 @@ class GpsScanDeviceView extends GetView<ScanDeviceController> {
                                   Container(
                                     width: width * 0.9,
                                     height: height * 0.55,
-                                    color: AppColors.primaryBlue.withOpacity(0.05),
+                                    color: AppColors.primaryBlue.withOpacity(
+                                      0.05,
+                                    ),
                                     child: const Center(
                                       child: Column(
-                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
                                         children: [
                                           Icon(
                                             Icons.qr_code_scanner_rounded,
@@ -221,7 +230,7 @@ class GpsScanDeviceView extends GetView<ScanDeviceController> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                   // Flash Button
+                  // Flash Button
                   Obx(() {
                     controller.scannedGpsCount.value;
                     return _buildActionButton(
@@ -238,6 +247,22 @@ class GpsScanDeviceView extends GetView<ScanDeviceController> {
                       icon: Icons.visibility_outlined,
                       label: 'Preview',
                       onPressed: () {
+                        final homeController = Get.find<HomeController>();
+                        final req = homeController.selectedCourierRequest.value;
+                        if (req != null) {
+                          final int allowed =
+                              (req.noOfNewGps ?? 0) + (req.noOfServiceGps ?? 0);
+                          if (controller.scannedGpsCount.value != allowed) {
+                            Get.snackbar(
+                              "Validation Error",
+                              "Please scan the exact count of GPS devices required ($allowed devices). Current count: ${controller.scannedGpsCount.value}.",
+                              snackPosition: SnackPosition.BOTTOM,
+                              backgroundColor: Colors.red,
+                              colorText: Colors.white,
+                            );
+                            return;
+                          }
+                        }
                         Get.to(() => const GpsPreviewView());
                       },
                       width: width * 0.42,

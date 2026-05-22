@@ -27,7 +27,7 @@ class TermsAndConditionsController extends GetxController {
           "Error",
           response?.message ?? "Failed to fetch terms and conditions",
           snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red.withOpacity(0.7),
+          backgroundColor: Colors.red,
           colorText: Colors.white,
         );
       }
@@ -52,7 +52,7 @@ class TermsAndConditionsController extends GetxController {
       "Error",
       errorMessage,
       snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: Colors.red.withOpacity(0.7),
+      backgroundColor: Colors.red,
       colorText: Colors.white,
     );
   }

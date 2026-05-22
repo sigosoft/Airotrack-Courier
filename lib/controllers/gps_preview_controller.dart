@@ -15,6 +15,7 @@ class GpsPreviewController extends GetxController {
   final totalDevices = "0".obs;
   final newDevices = "0".obs;
   final repairedDevices = "0".obs;
+  final othersRepairedDevices = "0".obs;
 
   // Store the list of devices.
   // Map can hold {"imei": "123", "dealer": "Dealer 2"}
@@ -29,26 +30,23 @@ class GpsPreviewController extends GetxController {
   Future<void> fetchPreviewData() async {
     isLoading.value = true;
     try {
-      if (!Hive.isBoxOpen('userBox')) {
-        await Hive.openBox('userBox');
-      }
-      var box = Hive.box('userBox');
-      String? userDataString = box.get('userData');
-      String userId = "";
-      String userType = "2";
+      final HomeController homeController = Get.find<HomeController>();
+      String userId = homeController.selectedUserId.value.toString();
+      String userType = homeController.selectedUserTypeValue.value.toString();
 
-      if (userDataString != null) {
-        try {
-          Map<String, dynamic> data = jsonDecode(userDataString);
-          userId = data['id']?.toString() ?? "";
-          userType = data['role_id']?.toString() ?? "2";
-        } catch (e) {
-          debugPrint("Error reading user data: $e");
+      final req = homeController.selectedCourierRequest.value;
+      if (req != null && (userType == "3" || userType == "11")) {
+        if (req.dealerId != null && req.dealerId != 0) {
+          userType = "1";
+          userId = req.dealerId.toString();
+        } else if (req.technicianId != null && req.technicianId != 0) {
+          userType = "2";
+          userId = req.technicianId.toString();
         }
       }
 
       final response = await _apiService.getGpsPreview(
-        userType: "2",
+        userType: userType,
         userId: userId,
       );
 
@@ -63,6 +61,8 @@ class GpsPreviewController extends GetxController {
         newDevices.value = data['new_devices_count']?.toString() ?? "0";
         repairedDevices.value =
             data['total_repaired_devices_count']?.toString() ?? "0";
+        othersRepairedDevices.value =
+            data['others_repaired_devices_count']?.toString() ?? "0";
 
         // Parse device data array
         List<Map<String, String>> parsedList = [];
@@ -101,6 +101,8 @@ class GpsPreviewController extends GetxController {
           "Error",
           response?['message'] ?? "Failed to fetch preview data",
           snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
         );
       }
     } catch (e) {
@@ -109,6 +111,8 @@ class GpsPreviewController extends GetxController {
         "Error",
         "Error fetching preview data",
         snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
       );
     } finally {
       isLoading.value = false;
@@ -135,14 +139,47 @@ class GpsPreviewController extends GetxController {
       }
 
       final homeController = Get.find<HomeController>();
+      final req = homeController.selectedCourierRequest.value;
+      if (req != null) {
+        final int allowed = (req.noOfNewGps ?? 0) + (req.noOfServiceGps ?? 0);
+        final int currentCount = int.tryParse(totalDevices.value) ?? 0;
+        if (currentCount != allowed) {
+          isActionLoading.value = false;
+          Get.snackbar(
+            "Validation Error",
+            "Please scan the exact count of GPS devices required ($allowed devices). Current count: $currentCount.",
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.red,
+            colorText: Colors.white,
+          );
+          return;
+        }
+      }
+
+      String targetUserType = homeController.selectedUserTypeValue.value
+          .toString();
+      String targetUserId = homeController.selectedUserId.value.toString();
+
+      if (req != null && (targetUserType == "3" || targetUserType == "11")) {
+        if (req.dealerId != null && req.dealerId != 0) {
+          targetUserType = "1";
+          targetUserId = req.dealerId.toString();
+        } else if (req.technicianId != null && req.technicianId != 0) {
+          targetUserType = "2";
+          targetUserId = req.technicianId.toString();
+        }
+      }
+
+      final String courierIdVal = (req?.id ?? req?.courierId)?.toString() ?? '';
+      final int othersRepaired = int.tryParse(othersRepairedDevices.value) ?? 0;
+      final String reallocateValue =
+          courierIdVal.isNotEmpty ? "0" : (othersRepaired > 0 ? "1" : "0");
+
       final response = await _apiService.gpsAllocate(
-        userType: "2",
-        userId: userId,
-        reallocate: "0",
-        courierId:
-            homeController.selectedCourierRequest.value?.courierId
-                ?.toString() ??
-            '',
+        userType: targetUserType,
+        userId: targetUserId,
+        reallocate: reallocateValue,
+        courierId: courierIdVal,
       );
 
       bool isSuccess =

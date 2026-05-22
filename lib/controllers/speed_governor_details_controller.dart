@@ -47,7 +47,23 @@ class SpeedGovernorDetailsController extends GetxController {
   }
 
   void onPreview() {
-    Get.find<HomeController>().fetchAllocationCounts();
+    final homeController = Get.find<HomeController>();
+    final req = homeController.selectedCourierRequest.value;
+    if (req != null) {
+      final int allowed = (req.noOfNewSpeedGovernors ?? 0) + (req.noOfServiceSpeedGovernors ?? 0);
+      final int entered = homeController.newSpeedGovernorCount.value + homeController.repairedSpeedGovernorCount.value;
+      if (entered != allowed) {
+        Get.snackbar(
+          "Validation Error",
+          "Please enter the exact count of Speed Governors required ($allowed devices). Current count: $entered.",
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+        return;
+      }
+    }
+    homeController.fetchAllocationCounts();
     Get.to(() => const AllocationPreviewView());
   }
 
@@ -113,8 +129,8 @@ class SpeedGovernorDetailsController extends GetxController {
         'Error',
         'Please fill in all required fields and select a Speed Governor',
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red.withOpacity(0.1),
-        colorText: Colors.red,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
       );
       return;
     }
@@ -133,8 +149,8 @@ class SpeedGovernorDetailsController extends GetxController {
           'Error',
           'You have already entered the maximum allowed number of Speed Governors ($allowedSgCount).',
           snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red.withOpacity(0.1),
-          colorText: Colors.red,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
         );
         return;
       }
@@ -183,8 +199,8 @@ class SpeedGovernorDetailsController extends GetxController {
           'Error',
           'Failed to store speed governor details.',
           snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red.withOpacity(0.1),
-          colorText: Colors.red,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
         );
       }
     } catch (e) {
@@ -193,8 +209,8 @@ class SpeedGovernorDetailsController extends GetxController {
         'Error',
         'An unexpected error occurred.',
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red.withOpacity(0.1),
-        colorText: Colors.red,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
       );
     } finally {
       isLoading.value = false;

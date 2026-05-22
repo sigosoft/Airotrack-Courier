@@ -37,7 +37,7 @@ class LoginController extends GetxController {
         "Error",
         "Please enter both username and password",
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red.withOpacity(0.7),
+        backgroundColor: Colors.red,
         colorText: Colors.white,
       );
       return;
@@ -62,7 +62,7 @@ class LoginController extends GetxController {
           "Success",
           response.message ?? "Logged in successfully",
           snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.green.withOpacity(0.7),
+          backgroundColor: Colors.green,
           colorText: Colors.white,
         );
 
@@ -73,7 +73,7 @@ class LoginController extends GetxController {
           "Login Failed",
           response?.message ?? "Invalid credentials",
           snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red.withOpacity(0.7),
+          backgroundColor: Colors.red,
           colorText: Colors.white,
         );
       }
@@ -115,7 +115,7 @@ class LoginController extends GetxController {
         "Error",
         errorMessage,
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red.withOpacity(0.7),
+        backgroundColor: Colors.red,
         colorText: Colors.white,
       );
     } finally {

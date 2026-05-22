@@ -12,7 +12,6 @@ class CameraDetailsController extends GetxController {
   final ApiService _apiService = ApiService();
   final isLoading = false.obs;
 
-
   @override
   void onClose() {
     serialController.dispose();
@@ -21,10 +20,24 @@ class CameraDetailsController extends GetxController {
     super.onClose();
   }
 
-
-
   void onPreview() {
-    Get.find<HomeController>().fetchAllocationCounts();
+    final homeController = Get.find<HomeController>();
+    final req = homeController.selectedCourierRequest.value;
+    if (req != null) {
+      final int allowed = (req.noOfNewCameras ?? 0) + (req.noOfServiceCameras ?? 0);
+      final int entered = homeController.newCameraCount.value + homeController.repairedCameraCount.value;
+      if (entered != allowed) {
+        Get.snackbar(
+          "Validation Error",
+          "Please enter the exact count of Cameras required ($allowed devices). Current count: $entered.",
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+        return;
+      }
+    }
+    homeController.fetchAllocationCounts();
     Get.to(() => const AllocationPreviewView());
   }
 
@@ -40,10 +53,13 @@ class CameraDetailsController extends GetxController {
 
   Future<void> onNext() async {
     if (serialController.text.isEmpty || cameraNameController.text.isEmpty) {
-      Get.snackbar('Error', 'Please fill in all required fields',
+      Get.snackbar(
+        'Error',
+        'Please fill in all required fields',
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red.withOpacity(0.1),
-        colorText: Colors.red);
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
       return;
     }
 
@@ -57,8 +73,8 @@ class CameraDetailsController extends GetxController {
           'Error',
           'You have already entered the maximum allowed number of cameras ($allowedCameraCount).',
           snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red.withOpacity(0.1),
-          colorText: Colors.red,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
         );
         return;
       }
@@ -101,17 +117,23 @@ class CameraDetailsController extends GetxController {
           Get.to(() => const AllocationPreviewView());
         }
       } else {
-        Get.snackbar('Error', 'Failed to store camera details. Please try again.',
+        Get.snackbar(
+          'Error',
+          'Failed to store camera details. Please try again.',
           snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red.withOpacity(0.1),
-          colorText: Colors.red);
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
       }
     } catch (e) {
       debugPrint("Error in onNext: $e");
-      Get.snackbar('Error', 'An unexpected error occurred.',
+      Get.snackbar(
+        'Error',
+        'An unexpected error occurred.',
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red.withOpacity(0.1),
-        colorText: Colors.red);
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
     } finally {
       isLoading.value = false;
     }

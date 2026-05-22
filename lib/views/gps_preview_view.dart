@@ -142,11 +142,36 @@ class GpsPreviewView extends StatelessWidget {
                               'Error',
                               'No devices added to preview',
                               snackPosition: SnackPosition.BOTTOM,
-                              backgroundColor: Colors.red.withOpacity(0.1),
-                              colorText: Colors.red,
+                              backgroundColor: Colors.red,
+                              colorText: Colors.white,
                             );
                             return;
                           }
+
+                          // Check courier request GPS count limit
+                          final req =
+                              homeController.selectedCourierRequest.value;
+                          if (req != null) {
+                            final int allowed =
+                                (req.noOfNewGps ?? 0) +
+                                (req.noOfServiceGps ?? 0);
+                            final int currentCount =
+                                int.tryParse(
+                                  previewController.totalDevices.value,
+                                ) ??
+                                0;
+                            if (currentCount != allowed) {
+                              Get.snackbar(
+                                "Validation Error",
+                                "Please scan the exact count of GPS devices required ($allowed devices). Current count: $currentCount.",
+                                snackPosition: SnackPosition.BOTTOM,
+                                backgroundColor: Colors.red,
+                                colorText: Colors.white,
+                              );
+                              return;
+                            }
+                          }
+
                           Get.to(() => const GpsDevicePreviewView());
                         },
                         style: ElevatedButton.styleFrom(
