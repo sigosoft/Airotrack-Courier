@@ -24,8 +24,11 @@ class CameraDetailsController extends GetxController {
     final homeController = Get.find<HomeController>();
     final req = homeController.selectedCourierRequest.value;
     if (req != null) {
-      final int allowed = (req.noOfNewCameras ?? 0) + (req.noOfServiceCameras ?? 0);
-      final int entered = homeController.newCameraCount.value + homeController.repairedCameraCount.value;
+      final int allowed =
+          (req.noOfNewCameras ?? 0) + (req.noOfServiceCameras ?? 0);
+      final int entered =
+          homeController.newCameraCount.value +
+          homeController.repairedCameraCount.value;
       if (entered != allowed) {
         Get.snackbar(
           "Validation Error",
@@ -46,8 +49,11 @@ class CameraDetailsController extends GetxController {
     final homeController = Get.find<HomeController>();
     final req = homeController.selectedCourierRequest.value;
     if (req == null) return false;
-    final int allowed = (req.noOfNewCameras ?? 0) + (req.noOfServiceCameras ?? 0);
-    final int entered = homeController.newCameraCount.value + homeController.repairedCameraCount.value;
+    final int allowed =
+        (req.noOfNewCameras ?? 0) + (req.noOfServiceCameras ?? 0);
+    final int entered =
+        homeController.newCameraCount.value +
+        homeController.repairedCameraCount.value;
     return allowed > 0 && entered >= allowed;
   }
 
@@ -66,8 +72,11 @@ class CameraDetailsController extends GetxController {
     final HomeController homeController = Get.find<HomeController>();
     if (homeController.selectedCourierRequest.value != null) {
       final req = homeController.selectedCourierRequest.value!;
-      final int allowedCameraCount = (req.noOfNewCameras ?? 0) + (req.noOfServiceCameras ?? 0);
-      final int enteredCameraCount = homeController.newCameraCount.value + homeController.repairedCameraCount.value;
+      final int allowedCameraCount =
+          (req.noOfNewCameras ?? 0) + (req.noOfServiceCameras ?? 0);
+      final int enteredCameraCount =
+          homeController.newCameraCount.value +
+          homeController.repairedCameraCount.value;
       if (enteredCameraCount >= allowedCameraCount) {
         Get.snackbar(
           'Error',
@@ -83,7 +92,7 @@ class CameraDetailsController extends GetxController {
     isLoading.value = true;
     try {
       final HomeController homeController = Get.find<HomeController>();
-      
+
       final success = await _apiService.postDeviceDetails(
         userType: homeController.selectedUserTypeValue.value,
         userId: homeController.selectedUserId.value,
@@ -105,16 +114,25 @@ class CameraDetailsController extends GetxController {
         // Check if limit is now reached — navigate to preview
         final req = homeController.selectedCourierRequest.value;
         if (req != null) {
-          final int allowedCameraCount = (req.noOfNewCameras ?? 0) + (req.noOfServiceCameras ?? 0);
-          final int enteredCameraCount = homeController.newCameraCount.value + homeController.repairedCameraCount.value;
+          final int allowedCameraCount =
+              (req.noOfNewCameras ?? 0) + (req.noOfServiceCameras ?? 0);
+          final int enteredCameraCount =
+              homeController.newCameraCount.value +
+              homeController.repairedCameraCount.value;
           if (enteredCameraCount >= allowedCameraCount) {
             Get.to(() => const AllocationPreviewView());
             return;
           }
           // Count not yet reached — stay on the same screen for next entry
         } else {
-          // No courier request limit set — navigate to preview as before
-          Get.to(() => const AllocationPreviewView());
+          // No courier request limit set (without request case) — stay on the same page to enter next data
+          Get.snackbar(
+            'Success',
+            'Camera details stored successfully',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.green,
+            colorText: Colors.white,
+          );
         }
       } else {
         Get.snackbar(

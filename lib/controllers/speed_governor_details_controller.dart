@@ -191,8 +191,14 @@ class SpeedGovernorDetailsController extends GetxController {
           }
           // Count not yet reached — stay on the same screen for next entry
         } else {
-          // No courier request limit set — navigate to preview as before
-          Get.to(() => const AllocationPreviewView());
+          // No courier request limit set (without request case) — stay on the same page to enter next data
+          Get.snackbar(
+            'Success',
+            'Speed governor details stored successfully',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.green,
+            colorText: Colors.white,
+          );
         }
       } else {
         Get.snackbar(
