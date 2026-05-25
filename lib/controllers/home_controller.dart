@@ -397,6 +397,28 @@ class HomeController extends GetxController {
     super.onInit();
     loadUserData();
     fetchCourierRequests();
+
+    // Listen to changes in selectedUserId and save to Hive
+    ever(selectedUserId, (int val) {
+      try {
+        final box = Hive.box('userBox');
+        box.put('selected_dealer_user_id', val);
+        debugPrint("Saved selected_dealer_user_id to Hive: $val");
+      } catch (e) {
+        debugPrint("Error writing selected_dealer_user_id to Hive: $e");
+      }
+    });
+
+    // Listen to changes in selectedUserTypeValue and save to Hive
+    ever(selectedUserTypeValue, (int val) {
+      try {
+        final box = Hive.box('userBox');
+        box.put('selected_dealer_user_type', val);
+        debugPrint("Saved selected_dealer_user_type to Hive: $val");
+      } catch (e) {
+        debugPrint("Error writing selected_dealer_user_type to Hive: $e");
+      }
+    });
   }
 
   Future<void> loadUserData() async {
@@ -446,7 +468,7 @@ class HomeController extends GetxController {
         (d) => d.firstName == name,
         orElse: () => Dealer(dealerId: 0),
       );
-      selectedUserId.value = dealer.dealerId ?? 0;
+      selectedUserId.value = dealer.userId ?? 0;
     } else if (userProfile.value.selectedUserType == 'Technician') {
       final tech = fetchedTechnicians.firstWhere(
         (t) => t.name == name,

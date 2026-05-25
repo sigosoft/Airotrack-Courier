@@ -10,8 +10,6 @@ class AppLifecycleController extends GetxController
   void onInit() {
     super.onInit();
     WidgetsBinding.instance.addObserver(this);
-    // Ensure temporary storage is cleared on app startup
-    _apiService.deleteTemporaryStorage();
   }
 
   @override

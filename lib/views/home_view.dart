@@ -834,16 +834,13 @@ class _HomeViewState extends State<HomeView> {
   }
 
   Widget _buildCourierRequestCard(CourierRequest request) {
-    final int reqUserId;
+    final int reqUserId = request.courierUserId ?? 0;
     final String roleLabel;
     if (request.courierUserType == 1) {
-      reqUserId = request.dealerId ?? 0;
       roleLabel = 'Dealer';
     } else if (request.courierUserType == 2) {
-      reqUserId = request.technicianId ?? 0;
       roleLabel = 'Technician';
     } else {
-      reqUserId = request.customerId ?? 0;
       roleLabel = 'Customer';
     }
 

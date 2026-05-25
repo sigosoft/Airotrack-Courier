@@ -124,31 +124,40 @@ class AllocationPreviewView extends StatelessWidget {
               color: AppColors.white,
               child: Row(
                 children: [
-                  // Add More button — commented out as per requirement
-                  // Expanded(
-                  //   child: SizedBox(
-                  //     height: 55,
-                  //     child: ElevatedButton(
-                  //       onPressed: () => _showAddDeviceDialog(context, homeController),
-                  //       style: ElevatedButton.styleFrom(
-                  //         backgroundColor: const Color(0xFFE1F5FE),
-                  //         foregroundColor: AppColors.primaryBlue,
-                  //         elevation: 0,
-                  //         shape: RoundedRectangleBorder(
-                  //           borderRadius: BorderRadius.circular(10),
-                  //         ),
-                  //       ),
-                  //       child: const Text(
-                  //         'Add More',
-                  //         style: TextStyle(
-                  //           fontSize: 18,
-                  //           fontWeight: FontWeight.bold,
-                  //         ),
-                  //       ),
-                  //     ),
-                  //   ),
-                  // ),
-                  // const SizedBox(width: 15),
+                  // Add More button — shown only when no courier request is selected
+                  Obx(() {
+                    final hasRequest =
+                        homeController.selectedCourierRequest.value != null;
+                    if (hasRequest) return const SizedBox.shrink();
+                    return Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        SizedBox(
+                          height: 55,
+                          child: ElevatedButton(
+                            onPressed: () =>
+                                _showAddDeviceDialog(context, homeController),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFFE1F5FE),
+                              foregroundColor: AppColors.primaryBlue,
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                            child: const Text(
+                              'Add More',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 15),
+                      ],
+                    );
+                  }),
                   Expanded(
                     child: SizedBox(
                       height: 55,
@@ -203,6 +212,18 @@ class AllocationPreviewView extends StatelessWidget {
                                       );
                                       return;
                                     }
+                                  }
+
+                                  // No data validation — must have at least one device
+                                  if (homeController.totalDevicesCount == 0) {
+                                    Get.snackbar(
+                                      "Error",
+                                      "No data to submit. Please add devices before submitting.",
+                                      snackPosition: SnackPosition.BOTTOM,
+                                      backgroundColor: Colors.red,
+                                      colorText: Colors.white,
+                                    );
+                                    return;
                                   }
 
                                   homeController.isAllocating.value = true;
@@ -337,89 +358,133 @@ class AllocationPreviewView extends StatelessWidget {
     );
   }
 
-  // _showAddDeviceDialog is kept commented out alongside the Add More button.
-  // void _showAddDeviceDialog(BuildContext context, HomeController homeController) {
-  //   String? selectedType;
-  //   Get.dialog(
-  //     Dialog(
-  //       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-  //       child: Padding(
-  //         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 25),
-  //         child: Column(
-  //           mainAxisSize: MainAxisSize.min,
-  //           crossAxisAlignment: CrossAxisAlignment.start,
-  //           children: [
-  //             RichText(
-  //               text: const TextSpan(
-  //                 text: 'Device Type',
-  //                 style: TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.w500),
-  //                 children: [
-  //                   TextSpan(text: '*', style: TextStyle(color: Colors.red, fontSize: 18, fontWeight: FontWeight.bold)),
-  //                 ],
-  //               ),
-  //             ),
-  //             const SizedBox(height: 15),
-  //             DropdownButtonFormField<String>(
-  //               decoration: InputDecoration(
-  //                 contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
-  //                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Colors.grey.shade300)),
-  //                 enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Colors.grey.shade300)),
-  //               ),
-  //               hint: const Text("Select Device Type"),
-  //               items: homeController.deviceTypeOptions.where((type) => type != 'GPS').map((String value) {
-  //                 return DropdownMenuItem<String>(value: value, child: Text(value));
-  //               }).toList(),
-  //               onChanged: (newValue) => selectedType = newValue,
-  //             ),
-  //             const SizedBox(height: 30),
-  //             Row(
-  //               children: [
-  //                 Expanded(
-  //                   child: SizedBox(
-  //                     height: 50,
-  //                     child: ElevatedButton(
-  //                       onPressed: () => Get.back(),
-  //                       style: ElevatedButton.styleFrom(
-  //                         backgroundColor: const Color(0xFFE1F5FE),
-  //                         foregroundColor: AppColors.primaryBlue,
-  //                         elevation: 0,
-  //                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-  //                       ),
-  //                       child: const Text("Cancel", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-  //                     ),
-  //                   ),
-  //                 ),
-  //                 const SizedBox(width: 15),
-  //                 Expanded(
-  //                   child: SizedBox(
-  //                     height: 50,
-  //                     child: ElevatedButton(
-  //                       onPressed: () {
-  //                         if (selectedType != null) {
-  //                           Get.back();
-  //                           if (selectedType == 'Camera') {
-  //                             Get.to(() => const CameraDetailsView());
-  //                           } else if (selectedType == 'Speed Governor') {
-  //                             Get.to(() => const SpeedGovernorDetailsView());
-  //                           }
-  //                         }
-  //                       },
-  //                       style: ElevatedButton.styleFrom(
-  //                         backgroundColor: AppColors.primaryBlue,
-  //                         foregroundColor: Colors.white,
-  //                         elevation: 0,
-  //                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-  //                       ),
-  //                       child: const Text("Submit", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-  //                     ),
-  //                   ),
-  //                 ),
-  //               ],
-  //             ),
-  //           ],
-  //         ),
-  //       ),
-  //     ),
-  //   );
-  // }
+  void _showAddDeviceDialog(
+    BuildContext context,
+    HomeController homeController,
+  ) {
+    String? selectedType;
+    Get.dialog(
+      Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 25),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              RichText(
+                text: const TextSpan(
+                  text: 'Device Type',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  children: [
+                    TextSpan(
+                      text: '*',
+                      style: TextStyle(
+                        color: Colors.red,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 15),
+              DropdownButtonFormField<String>(
+                decoration: InputDecoration(
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 15,
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(color: Colors.grey.shade300),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(color: Colors.grey.shade300),
+                  ),
+                ),
+                hint: const Text("Select Device Type"),
+                items: homeController.deviceTypeOptions
+                    .where((type) => type != 'GPS')
+                    .map(
+                      (String value) => DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      ),
+                    )
+                    .toList(),
+                onChanged: (newValue) => selectedType = newValue,
+              ),
+              const SizedBox(height: 30),
+              Row(
+                children: [
+                  Expanded(
+                    child: SizedBox(
+                      height: 50,
+                      child: ElevatedButton(
+                        onPressed: () => Get.back(),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFFE1F5FE),
+                          foregroundColor: AppColors.primaryBlue,
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: const Text(
+                          "Cancel",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 15),
+                  Expanded(
+                    child: SizedBox(
+                      height: 50,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          if (selectedType != null) {
+                            Get.back();
+                            if (selectedType == 'Camera') {
+                              Get.to(() => const CameraDetailsView());
+                            } else if (selectedType == 'Speed Governor') {
+                              Get.to(() => const SpeedGovernorDetailsView());
+                            }
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primaryBlue,
+                          foregroundColor: Colors.white,
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: const Text(
+                          "Submit",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }

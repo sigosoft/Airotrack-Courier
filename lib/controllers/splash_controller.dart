@@ -7,6 +7,7 @@ import '../views/home_view.dart';
 import '../bindings/home_binding.dart';
 import '../utils/network_info.dart';
 import '../views/noInternet.dart';
+import '../services/api_service.dart';
 
 class SplashController extends GetxController {
   @override
@@ -37,7 +38,14 @@ class SplashController extends GetxController {
         debugPrint("SplashController retrieved token: $token");
 
         if (token != null && token.isNotEmpty) {
-          // Token exists, navigate to Home
+          // User is logged in — clear both temporary storages before navigating
+          try {
+            await ApiService().deleteTemporaryStorage();
+            debugPrint("Temporary storages cleared on app reopen");
+          } catch (e) {
+            debugPrint("Error clearing temporary storages on reopen: $e");
+          }
+          // Navigate to Home
           Get.offAll(() => const HomeView(), binding: HomeBinding());
         } else {
           // No token, navigate to Login

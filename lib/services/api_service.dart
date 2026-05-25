@@ -380,41 +380,61 @@ class ApiService {
     return null;
   }
 
-  Future<Map<String, dynamic>?> deleteTemporaryStorage() async {
+  Future<Map<String, dynamic>?> deleteTemporaryStorage({
+    String? userType,
+    String? userId,
+  }) async {
     try {
-      String userId = "";
-      String userType = "2";
+      String resolvedUserId = userId ?? "";
+      String resolvedUserType = userType ?? "";
 
-      if (!Hive.isBoxOpen('userBox')) {
-        await Hive.openBox('userBox');
-      }
-      var box = Hive.box('userBox');
-      String? userDataString = box.get('userData');
-      if (userDataString != null) {
-        try {
-          Map<String, dynamic> data = jsonDecode(userDataString);
-          userId = data['id']?.toString() ?? "";
-          userType = data['role_id']?.toString() ?? "2";
-        } catch (e) {
-          debugPrint("Error reading user data: $e");
+      if (resolvedUserId.isEmpty) {
+        if (!Hive.isBoxOpen('userBox')) {
+          await Hive.openBox('userBox');
+        }
+        var box = Hive.box('userBox');
+        var savedUserId = box.get('selected_dealer_user_id');
+        var savedUserType = box.get('selected_dealer_user_type');
+
+        if (savedUserId != null && savedUserId.toString() != "0") {
+          resolvedUserId = savedUserId.toString();
+          resolvedUserType = savedUserType?.toString() ?? "1";
+        } else {
+          String? userDataString = box.get('userData');
+          if (userDataString != null) {
+            try {
+              Map<String, dynamic> data = jsonDecode(userDataString);
+              resolvedUserId = data['id']?.toString() ?? "";
+              resolvedUserType = data['role_id']?.toString() ?? "2";
+            } catch (e) {
+              debugPrint("Error reading user data: $e");
+            }
+          }
         }
       }
 
-      if (userId.isEmpty) {
-        debugPrint("Skipping deleteTemporaryStorage because userId is empty");
+      if (resolvedUserId.isEmpty) {
+        debugPrint("Skipping deleteTemporaryStorage because resolvedUserId is empty");
         return null;
       }
 
       FormData formData = FormData.fromMap({
-        "user_type": userType,
-        "user_id": userId,
+        "user_type": resolvedUserType,
+        "user_id": resolvedUserId,
       });
+
+      debugPrint("Calling deleteTemporaryStorage with user_type: $resolvedUserType, user_id: $resolvedUserId");
 
       Response response = await _dio.post(
         ApiConstants.deleteTemporaryStorage,
         data: formData,
       );
       if (response.statusCode == 200) {
+        if (Hive.isBoxOpen('userBox')) {
+          var box = Hive.box('userBox');
+          box.delete('selected_dealer_user_id');
+          box.delete('selected_dealer_user_type');
+        }
         return response.data;
       }
     } on DioException catch (e) {

@@ -34,17 +34,6 @@ class GpsPreviewController extends GetxController {
       String userId = homeController.selectedUserId.value.toString();
       String userType = homeController.selectedUserTypeValue.value.toString();
 
-      final req = homeController.selectedCourierRequest.value;
-      if (req != null && (userType == "3" || userType == "11")) {
-        if (req.dealerId != null && req.dealerId != 0) {
-          userType = "1";
-          userId = req.dealerId.toString();
-        } else if (req.technicianId != null && req.technicianId != 0) {
-          userType = "2";
-          userId = req.technicianId.toString();
-        }
-      }
-
       final response = await _apiService.getGpsPreview(
         userType: userType,
         userId: userId,
@@ -222,7 +211,14 @@ class GpsPreviewController extends GetxController {
   Future<void> deleteTemporaryStorage() async {
     isActionLoading.value = true;
     try {
-      final response = await _apiService.deleteTemporaryStorage();
+      final HomeController homeController = Get.find<HomeController>();
+      String userId = homeController.selectedUserId.value.toString();
+      String userType = homeController.selectedUserTypeValue.value.toString();
+
+      final response = await _apiService.deleteTemporaryStorage(
+        userId: userId,
+        userType: userType,
+      );
 
       bool isSuccess =
           response != null &&
