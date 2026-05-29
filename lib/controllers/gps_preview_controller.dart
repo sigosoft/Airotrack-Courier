@@ -6,6 +6,7 @@ import '../services/api_service.dart';
 import '../controllers/home_controller.dart';
 import '../views/allocation_success_view.dart';
 import '../views/home_view.dart';
+import '../utils/error_handler.dart';
 
 class GpsPreviewController extends GetxController {
   final ApiService _apiService = ApiService();
@@ -100,7 +101,7 @@ class GpsPreviewController extends GetxController {
       debugPrint("API Error: $e");
       Get.snackbar(
         "Error",
-        "Error fetching preview data",
+        ErrorHandler.getErrorMessage(e),
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red,
         colorText: Colors.white,
@@ -198,7 +199,7 @@ class GpsPreviewController extends GetxController {
     } catch (e) {
       Get.snackbar(
         "Error",
-        "Allocation failed: $e",
+        ErrorHandler.getErrorMessage(e),
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red,
         colorText: Colors.white,
@@ -244,7 +245,7 @@ class GpsPreviewController extends GetxController {
     } catch (e) {
       Get.snackbar(
         "Error",
-        "Deletion failed: $e",
+        ErrorHandler.getErrorMessage(e),
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red,
         colorText: Colors.white,

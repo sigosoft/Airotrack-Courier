@@ -16,6 +16,7 @@ import '../models/dealers_response.dart';
 import '../models/technicians_response.dart';
 import '../models/courier_requests_response.dart';
 import '../models/companies_response.dart';
+import '../utils/error_handler.dart';
 
 class HomeController extends GetxController {
   // Observable user profile state
@@ -148,7 +149,7 @@ class HomeController extends GetxController {
       }
     } catch (error) {
       print("maintenance Error: $error");
-      showToast(context, error.toString());
+      showToast(context, ErrorHandler.getErrorMessage(error));
     }
   }
 
@@ -270,25 +271,7 @@ class HomeController extends GetxController {
   }
 
   void _handleApiError(dynamic e) {
-    String errorMessage = "Something went wrong. Please try again later.";
-    if (e is DioException) {
-      var data = e.response?.data;
-      if (data != null && data is Map && data['message'] != null) {
-        var msg = data['message'];
-        if (msg is String) {
-          errorMessage = msg;
-        } else if (msg is Map && msg.isNotEmpty) {
-          var firstError = msg.values.first;
-          errorMessage = (firstError is List && firstError.isNotEmpty)
-              ? firstError.first.toString()
-              : firstError.toString();
-        } else {
-          errorMessage = msg.toString();
-        }
-      } else {
-        errorMessage = e.message ?? errorMessage;
-      }
-    }
+    final errorMessage = ErrorHandler.getErrorMessage(e);
     Get.snackbar(
       "Error",
       errorMessage,

@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:dio/dio.dart';
 import '../services/api_service.dart';
 import '../models/terms_and_conditions_response.dart';
+import '../utils/error_handler.dart';
 
 class TermsAndConditionsController extends GetxController {
   final ApiService _apiService = ApiService();
@@ -39,15 +40,7 @@ class TermsAndConditionsController extends GetxController {
   }
 
   void _handleApiError(dynamic e) {
-    String errorMessage = "Something went wrong. Please try again later.";
-    if (e is DioException) {
-      var data = e.response?.data;
-      if (data != null && data is Map && data['message'] != null) {
-        errorMessage = data['message'].toString();
-      } else {
-        errorMessage = e.message ?? errorMessage;
-      }
-    }
+    final errorMessage = ErrorHandler.getErrorMessage(e);
     Get.snackbar(
       "Error",
       errorMessage,

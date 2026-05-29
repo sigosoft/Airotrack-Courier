@@ -7,6 +7,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:dio/dio.dart';
 import '../services/api_service.dart';
 import 'home_controller.dart';
+import '../utils/error_handler.dart';
 
 class ScanDeviceController extends GetxController {
   final MobileScannerController cameraController = MobileScannerController(
@@ -247,27 +248,7 @@ class ScanDeviceController extends GetxController {
     } catch (e) {
       _scannedBarcodes.remove(imei);
       debugPrint("Scan API Error: $e");
-      String errorMessage = "Scan API Error: $e";
-      if (e is DioException) {
-        var data = e.response?.data;
-        if (data != null && data is Map && data['message'] != null) {
-          var msg = data['message'];
-          if (msg is String) {
-            errorMessage = msg;
-          } else if (msg is Map && msg.isNotEmpty) {
-            var firstError = msg.values.first;
-            errorMessage = (firstError is List && firstError.isNotEmpty)
-                ? firstError.first.toString()
-                : firstError.toString();
-          } else {
-            errorMessage = msg.toString();
-          }
-        } else {
-          errorMessage =
-              e.message ??
-              "Server error (${e.response?.statusCode ?? 'unknown'})";
-        }
-      }
+      final errorMessage = ErrorHandler.getErrorMessage(e);
       Get.snackbar(
         "Error",
         errorMessage,

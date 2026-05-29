@@ -7,6 +7,7 @@ import '../utils/network_info.dart';
 import '../services/api_service.dart';
 import '../views/home_view.dart';
 import '../bindings/home_binding.dart';
+import '../utils/error_handler.dart';
 
 class LoginController extends GetxController {
   final ApiService _apiService = ApiService();
@@ -78,38 +79,7 @@ class LoginController extends GetxController {
         );
       }
     } catch (e) {
-      String errorMessage = "Something went wrong. Please try again later.";
-      
-      if (e is DioException) {
-        if (e.type == DioExceptionType.connectionTimeout || 
-            e.type == DioExceptionType.receiveTimeout ||
-            e.type == DioExceptionType.sendTimeout) {
-          errorMessage = "Connection timed out. Please check your network speed.";
-        } else if (e.type == DioExceptionType.connectionError) {
-          errorMessage = "No internet connection or server unreachable.";
-        } else if (e.type == DioExceptionType.badCertificate) {
-          errorMessage = "Security certificate error. Please check your system date/time.";
-        } else if (e.type == DioExceptionType.unknown) {
-          errorMessage = "Network Error: ${e.error ?? e.message ?? 'Server connection failed'}";
-        } else {
-          var data = e.response?.data;
-          if (data != null && data is Map && data['message'] != null) {
-            var msg = data['message'];
-            if (msg is String) {
-              errorMessage = msg;
-            } else if (msg is Map && msg.isNotEmpty) {
-              var firstError = msg.values.first;
-              errorMessage = (firstError is List && firstError.isNotEmpty)
-                  ? firstError.first.toString()
-                  : firstError.toString();
-            } else {
-              errorMessage = msg.toString();
-            }
-          } else {
-            errorMessage = e.message ?? "Server error (${e.response?.statusCode ?? 'unknown'})";
-          }
-        }
-      }
+      String errorMessage = ErrorHandler.getErrorMessage(e);
       
       Get.snackbar(
         "Error",
