@@ -32,8 +32,8 @@ class GpsPreviewController extends GetxController {
     isLoading.value = true;
     try {
       final HomeController homeController = Get.find<HomeController>();
-      String userId = homeController.selectedUserId.value.toString();
-      String userType = homeController.selectedUserTypeValue.value.toString();
+      String userId = homeController.resolvedUserId.toString();
+      String userType = homeController.resolvedUserType.toString();
 
       final response = await _apiService.getGpsPreview(
         userType: userType,
@@ -148,25 +148,12 @@ class GpsPreviewController extends GetxController {
         }
       }
 
-      String targetUserType = homeController.selectedUserTypeValue.value
-          .toString();
-      String targetUserId = homeController.selectedUserId.value.toString();
-
-      if (req != null && (targetUserType == "3" || targetUserType == "11")) {
-        if (req.dealerId != null && req.dealerId != 0) {
-          targetUserType = "1";
-          targetUserId = req.dealerId.toString();
-        } else if (req.technicianId != null && req.technicianId != 0) {
-          targetUserType = "2";
-          targetUserId = req.technicianId.toString();
-        }
-      }
+      String targetUserType = homeController.resolvedUserType.toString();
+      String targetUserId = homeController.resolvedUserId.toString();
 
       final String courierIdVal = (req?.id ?? req?.courierId)?.toString() ?? '';
       final int othersRepaired = int.tryParse(othersRepairedDevices.value) ?? 0;
-      final String reallocateValue = courierIdVal.isNotEmpty
-          ? "0"
-          : (othersRepaired > 0 ? "1" : "0");
+      final String reallocateValue = othersRepaired > 0 ? "1" : "0";
 
       final response = await _apiService.gpsAllocate(
         userType: targetUserType,
@@ -213,8 +200,8 @@ class GpsPreviewController extends GetxController {
     isActionLoading.value = true;
     try {
       final HomeController homeController = Get.find<HomeController>();
-      String userId = homeController.selectedUserId.value.toString();
-      String userType = homeController.selectedUserTypeValue.value.toString();
+      String userId = homeController.resolvedUserId.toString();
+      String userType = homeController.resolvedUserType.toString();
 
       final response = await _apiService.deleteTemporaryStorage(
         userId: userId,

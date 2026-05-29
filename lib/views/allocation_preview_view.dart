@@ -232,12 +232,10 @@ class AllocationPreviewView extends StatelessWidget {
                                     final result = await apiService
                                         .cameraSpeedGovernorAllocate(
                                           userType: homeController
-                                              .selectedUserTypeValue
-                                              .value
+                                              .resolvedUserType
                                               .toString(),
                                           userId: homeController
-                                              .selectedUserId
-                                              .value
+                                              .resolvedUserId
                                               .toString(),
                                           courierId:
                                               (homeController

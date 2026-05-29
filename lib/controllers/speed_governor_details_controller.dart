@@ -161,8 +161,8 @@ class SpeedGovernorDetailsController extends GetxController {
       final homeController = Get.find<HomeController>();
 
       final success = await _apiService.postDeviceDetails(
-        userType: homeController.selectedUserTypeValue.value,
-        userId: homeController.selectedUserId.value,
+        userType: homeController.resolvedUserType,
+        userId: homeController.resolvedUserId,
         deviceType: 2, // Speed Governor
         speedGovernorId: selectedGovernorId.value.toString(),
         serialNo: serialController.text,

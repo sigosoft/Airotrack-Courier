@@ -467,9 +467,55 @@ class HomeController extends GetxController {
     }
 
     // NEW: Fetch existing allocation counts for the selected user immediately
-    if (selectedUserId.value != 0) {
+    if (resolvedUserId != 0) {
       fetchAllocationCounts();
     }
+  }
+
+  // Getters to resolve the correct target user ID and type when a courier request is selected.
+  int get resolvedUserId {
+    final req = selectedCourierRequest.value;
+    if (req != null) {
+      final int type = selectedUserTypeValue.value;
+      if (type == 1) {
+        if (req.dealerId != null && req.dealerId != 0) {
+          return req.dealerId!;
+        }
+      } else if (type == 2) {
+        if (req.technicianId != null && req.technicianId != 0) {
+          return req.technicianId!;
+        }
+      } else if (type == 3 || type == 11) {
+        if (req.dealerId != null && req.dealerId != 0) {
+          return req.dealerId!;
+        } else if (req.technicianId != null && req.technicianId != 0) {
+          return req.technicianId!;
+        } else if (req.customerId != null && req.customerId != 0) {
+          return req.customerId!;
+        }
+      }
+      if (req.courierUserId != null && req.courierUserId != 0) {
+        return req.courierUserId!;
+      }
+    }
+    return selectedUserId.value;
+  }
+
+  int get resolvedUserType {
+    final req = selectedCourierRequest.value;
+    if (req != null) {
+      final int type = selectedUserTypeValue.value;
+      if (type == 3 || type == 11) {
+        if (req.dealerId != null && req.dealerId != 0) {
+          return 1;
+        } else if (req.technicianId != null && req.technicianId != 0) {
+          return 2;
+        } else if (req.customerId != null && req.customerId != 0) {
+          return 3;
+        }
+      }
+    }
+    return selectedUserTypeValue.value;
   }
 
   // Device counts for Allocation Summary
@@ -487,12 +533,12 @@ class HomeController extends GetxController {
 
   // Method to fetch allocation counts from backend
   Future<void> fetchAllocationCounts() async {
-    if (selectedUserId.value == 0) return;
+    if (resolvedUserId == 0) return;
 
     try {
       final response = await _apiService.getAllocationPreview(
-        userId: selectedUserId.value,
-        userType: selectedUserTypeValue.value,
+        userId: resolvedUserId,
+        userType: resolvedUserType,
       );
 
       if (response != null && response.status == true) {

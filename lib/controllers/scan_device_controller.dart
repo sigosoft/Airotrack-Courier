@@ -24,19 +24,8 @@ class ScanDeviceController extends GetxController {
   Future<void> fetchCurrentGpsCount() async {
     try {
       final HomeController homeController = Get.find<HomeController>();
-      String userId = homeController.selectedUserId.value.toString();
-      String userType = homeController.selectedUserTypeValue.value.toString();
-
-      final req = homeController.selectedCourierRequest.value;
-      if (req != null && (userType == "3" || userType == "11")) {
-        if (req.dealerId != null && req.dealerId != 0) {
-          userType = "1";
-          userId = req.dealerId.toString();
-        } else if (req.technicianId != null && req.technicianId != 0) {
-          userType = "2";
-          userId = req.technicianId.toString();
-        }
-      }
+      String userId = homeController.resolvedUserId.toString();
+      String userType = homeController.resolvedUserType.toString();
 
       if (userId.isNotEmpty && userId != "0") {
         final response = await _apiService.getGpsPreview(
@@ -94,6 +83,23 @@ class ScanDeviceController extends GetxController {
 
   // Start scanning
   void startScanning() async {
+    final HomeController homeController = Get.find<HomeController>();
+    if (homeController.selectedCourierRequest.value != null) {
+      final req = homeController.selectedCourierRequest.value!;
+      final int allowedGpsCount =
+          (req.noOfNewGps ?? 0) + (req.noOfServiceGps ?? 0);
+      if (scannedGpsCount.value >= allowedGpsCount) {
+        Get.snackbar(
+          "Limit Reached",
+          "You have already scanned the maximum allowed number of GPS devices ($allowedGpsCount).",
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+        return;
+      }
+    }
+
     isScannerActive.value = true;
     scannerKeyCounter.value++;
     // Brief delay to ensure the MobileScanner widget is mounted before calling start()
@@ -186,10 +192,13 @@ class ScanDeviceController extends GetxController {
     _isProcessing = true;
 
     final HomeController homeController = Get.find<HomeController>();
+    int allowedGpsCount = 0;
+    bool hasLimit = false;
+
     if (homeController.selectedCourierRequest.value != null) {
       final req = homeController.selectedCourierRequest.value!;
-      final int allowedGpsCount =
-          (req.noOfNewGps ?? 0) + (req.noOfServiceGps ?? 0);
+      allowedGpsCount = (req.noOfNewGps ?? 0) + (req.noOfServiceGps ?? 0);
+      hasLimit = true;
       if (scannedGpsCount.value >= allowedGpsCount) {
         _isProcessing = false;
         Get.snackbar(
@@ -199,25 +208,18 @@ class ScanDeviceController extends GetxController {
           backgroundColor: Colors.red,
           colorText: Colors.white,
         );
+        try {
+          cameraController.stop();
+        } catch (e) {}
+        isScannerActive.value = false;
         return;
       }
     }
 
     _scannedBarcodes.add(imei);
 
-    String userType = homeController.selectedUserTypeValue.value.toString();
-    String userId = homeController.selectedUserId.value.toString();
-
-    final req = homeController.selectedCourierRequest.value;
-    if (req != null && (userType == "3" || userType == "11")) {
-      if (req.dealerId != null && req.dealerId != 0) {
-        userType = "1";
-        userId = req.dealerId.toString();
-      } else if (req.technicianId != null && req.technicianId != 0) {
-        userType = "2";
-        userId = req.technicianId.toString();
-      }
-    }
+    String userType = homeController.resolvedUserType.toString();
+    String userId = homeController.resolvedUserId.toString();
 
     try {
       final response = await _apiService.setGpsTemporaryStorage(
@@ -235,6 +237,14 @@ class ScanDeviceController extends GetxController {
           backgroundColor: Colors.green,
           colorText: Colors.white,
         );
+
+        // Auto-stop scanner if limit is reached after this successful scan
+        if (hasLimit && scannedGpsCount.value >= allowedGpsCount) {
+          try {
+            cameraController.stop();
+          } catch (e) {}
+          isScannerActive.value = false;
+        }
       } else {
         _scannedBarcodes.remove(imei);
         Get.snackbar(
