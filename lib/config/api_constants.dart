@@ -1,6 +1,6 @@
 class ApiConstants {
-  static const String baseUrl =
-      "https://dev-api.airotrack.in/airotrack-api/public/courier/";
+  static const String baseUrl = "https://api.airotrack.in/courier/";
+  //"https://dev-api.airotrack.in/airotrack-api/public/courier/";
   static const String login = "login";
   static const String courierRequests = "courierRequests";
   static const String dealers = "dealers";
