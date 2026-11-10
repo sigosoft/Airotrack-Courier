@@ -32,6 +32,7 @@ class _HomeViewState extends State<HomeView> {
   @override
   void initState() {
     super.initState();
+    controller.startClockTimer();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       controller.settings(context);
     });

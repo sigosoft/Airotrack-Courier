@@ -2,7 +2,6 @@ import 'package:airotrack_courier/models/settings_model.dart';
 import 'package:airotrack_courier/services/dio_client.dart';
 import 'package:airotrack_courier/views/home_view.dart';
 import 'package:airotrack_courier/views/need_an_update.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -19,11 +18,43 @@ import '../models/companies_response.dart';
 import '../utils/error_handler.dart';
 
 class HomeController extends GetxController {
+  static String _getCurrentDate() {
+    final now = DateTime.now();
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
+    final day = now.day.toString().padLeft(2, '0');
+    final month = months[now.month - 1];
+    final year = now.year.toString();
+    return "$day $month $year";
+  }
+
+  static String _getCurrentTime() {
+    final now = DateTime.now();
+    final hour12 = now.hour % 12 == 0 ? 12 : now.hour % 12;
+    final hour = hour12.toString().padLeft(2, '0');
+    final minute = now.minute.toString().padLeft(2, '0');
+    final second = now.second.toString().padLeft(2, '0');
+    final period = now.hour >= 12 ? 'PM' : 'AM';
+    return "$hour:$minute:$second $period";
+  }
+
   // Observable user profile state
   final userProfile = UserProfile(
     name: 'Jobin',
-    date: '05 Jun 2023',
-    time: '08:22:11 AM',
+    date: _getCurrentDate(),
+    time: _getCurrentTime(),
     userTypeOptions: ['Dealer', 'Technician', 'Customer'],
     selectedUserType: 'Select User Type',
   ).obs;
@@ -37,6 +68,27 @@ class HomeController extends GetxController {
   final RxBool isCompaniesLoading = false.obs;
   String _lastQuery = '';
   Timer? _searchDebounce;
+  Timer? _clockTimer;
+
+  void updateCurrentDateTime() {
+    final currentDate = _getCurrentDate();
+    final currentTime = _getCurrentTime();
+    if (userProfile.value.date != currentDate ||
+        userProfile.value.time != currentTime) {
+      userProfile.update((val) {
+        val?.date = currentDate;
+        val?.time = currentTime;
+      });
+    }
+  }
+
+  void startClockTimer() {
+    _clockTimer?.cancel();
+    updateCurrentDateTime();
+    _clockTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+      updateCurrentDateTime();
+    });
+  }
 
   final RxList<CourierRequest> courierRequestsList = <CourierRequest>[].obs;
   final RxBool isCourierRequestsLoading = false.obs;
@@ -378,6 +430,7 @@ class HomeController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    startClockTimer();
     loadUserData();
     fetchCourierRequests();
 
@@ -415,14 +468,6 @@ class HomeController extends GetxController {
         Map<String, dynamic> data = jsonDecode(userDataString);
         userProfile.update((val) {
           val?.name = data['name'] ?? 'Guest';
-
-          // Parsing "14 Aug 2025, 06:28 am"
-          String fullDate = data['converted_created_at']?.toString() ?? "";
-          if (fullDate.contains(',')) {
-            List<String> parts = fullDate.split(',');
-            val?.date = parts[0].trim();
-            val?.time = parts[1].trim();
-          }
         });
       } catch (e) {
         debugPrint("Error loading user data: $e");
@@ -430,7 +475,9 @@ class HomeController extends GetxController {
     }
   }
 
+  @override
   void onClose() {
+    _clockTimer?.cancel();
     searchController.dispose();
     searchFocusNode.dispose();
     super.onClose();
