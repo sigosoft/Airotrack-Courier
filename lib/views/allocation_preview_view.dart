@@ -226,6 +226,9 @@ class AllocationPreviewView extends StatelessWidget {
                                     return;
                                   }
 
+                                  final allocatedRequest = homeController
+                                      .selectedCourierRequest
+                                      .value;
                                   homeController.isAllocating.value = true;
                                   try {
                                     final apiService = ApiService();
@@ -234,8 +237,7 @@ class AllocationPreviewView extends StatelessWidget {
                                           userType: homeController
                                               .resolvedUserType
                                               .toString(),
-                                          userId: homeController
-                                              .resolvedUserId
+                                          userId: homeController.resolvedUserId
                                               .toString(),
                                           courierId:
                                               (homeController
@@ -255,7 +257,9 @@ class AllocationPreviewView extends StatelessWidget {
                                             result['status'] == 'true');
                                     if (success) {
                                       Get.offAll(
-                                        () => AllocationSuccessScreen(),
+                                        () => AllocationSuccessScreen(
+                                          request: allocatedRequest,
+                                        ),
                                       );
                                     } else {
                                       Get.snackbar(

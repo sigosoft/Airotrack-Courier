@@ -1,6 +1,8 @@
 class ApiConstants {
   static const String baseUrl = "https://api.airotrack.in/courier/";
   //"https://dev-api.airotrack.in/airotrack-api/public/courier/";
+  // Host for files the API returns as relative paths (e.g. invoice files).
+  static const String fileBaseUrl = "https://api.airotrack.in/";
   static const String login = "login";
   static const String courierRequests = "courierRequests";
   static const String dealers = "dealers";

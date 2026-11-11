@@ -173,7 +173,7 @@ class GpsPreviewController extends GetxController {
           backgroundColor: Colors.green,
           colorText: Colors.white,
         );
-        Get.offAll(() => AllocationSuccessScreen());
+        Get.offAll(() => AllocationSuccessScreen(request: req));
       } else {
         Get.snackbar(
           "Error",
