@@ -7,6 +7,7 @@ import '../controllers/home_controller.dart';
 import '../views/allocation_success_view.dart';
 import '../views/home_view.dart';
 import '../utils/error_handler.dart';
+import '../models/invoice_data.dart';
 
 class GpsPreviewController extends GetxController {
   final ApiService _apiService = ApiService();
@@ -173,7 +174,12 @@ class GpsPreviewController extends GetxController {
           backgroundColor: Colors.green,
           colorText: Colors.white,
         );
-        Get.offAll(() => AllocationSuccessScreen());
+        final invoice = InvoiceData.gps(
+          homeController,
+          newCount: int.tryParse(newDevices.value) ?? 0,
+          repairedCount: int.tryParse(repairedDevices.value) ?? 0,
+        );
+        Get.offAll(() => AllocationSuccessScreen(invoice: invoice));
       } else {
         Get.snackbar(
           "Error",

@@ -1,11 +1,26 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../bindings/home_binding.dart';
+import '../controllers/home_controller.dart';
+import '../models/invoice_data.dart';
 import '../utils/app_colors.dart';
+import '../utils/invoice_pdf.dart';
+import 'home_view.dart';
 import 'invoice_view.dart';
 
 class AllocationSuccessScreen extends StatelessWidget {
-  const AllocationSuccessScreen({super.key});
+  /// Invoice for the allocation that just succeeded, built by the caller.
+  final InvoiceData? invoice;
+
+  const AllocationSuccessScreen({super.key, this.invoice});
+
+  void _goToMainMenu() {
+    if (Get.isRegistered<HomeController>()) {
+      Get.find<HomeController>().resetAll();
+    }
+    Get.offAll(() => const HomeView(), binding: HomeBinding());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -108,37 +123,46 @@ class AllocationSuccessScreen extends StatelessWidget {
                   ),
                   child: Column(
                     children: [
-                      Container(
-                        width: double.infinity,
-                        height: 60,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(18),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.1),
-                              blurRadius: 10,
-                              offset: const Offset(0, 5),
+                      if (invoice != null) ...[
+                        Row(
+                          children: [
+                            Expanded(
+                              child: _whiteButton(
+                                label: "Download Invoice",
+                                onPressed: () =>
+                                    Get.to(() => InvoiceView(data: invoice!)),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            SizedBox(
+                              width: 60,
+                              height: 60,
+                              child: _whiteButton(
+                                icon: Icons.share,
+                                onPressed: () => InvoicePdf.share(invoice!),
+                              ),
                             ),
                           ],
                         ),
-                        child: ElevatedButton(
-                          onPressed: () {
-                            Get.to(() => const InvoiceView());
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.white,
-                            foregroundColor: const Color(0xFF0277BD),
-                            elevation: 0,
+                        const SizedBox(height: 16),
+                      ],
+                      SizedBox(
+                        width: double.infinity,
+                        height: 55,
+                        child: OutlinedButton(
+                          onPressed: _goToMainMenu,
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: Colors.white,
+                            side: const BorderSide(color: Colors.white),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(18),
                             ),
                           ),
                           child: const Text(
-                            "Download Invoice",
+                            "Go to Main Menu",
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
-                              letterSpacing: 0.5,
                             ),
                           ),
                         ),
@@ -150,6 +174,48 @@ class AllocationSuccessScreen extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _whiteButton({
+    String? label,
+    IconData? icon,
+    required VoidCallback onPressed,
+  }) {
+    return Container(
+      height: 60,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(18),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 10,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      child: ElevatedButton(
+        onPressed: onPressed,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.white,
+          foregroundColor: const Color(0xFF0277BD),
+          elevation: 0,
+          padding: EdgeInsets.zero,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(18),
+          ),
+        ),
+        child: icon != null
+            ? Icon(icon, size: 26)
+            : Text(
+                label ?? '',
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 0.5,
+                ),
+              ),
       ),
     );
   }
