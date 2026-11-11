@@ -6,6 +6,7 @@ import '../widgets/custom_back_button.dart';
 import '../controllers/home_controller.dart';
 import '../services/api_service.dart';
 import 'allocation_success_view.dart';
+import '../models/invoice_data.dart';
 import 'camera_details_view.dart';
 import 'speed_governor_details_view.dart';
 
@@ -226,9 +227,10 @@ class AllocationPreviewView extends StatelessWidget {
                                     return;
                                   }
 
-                                  final allocatedRequest = homeController
-                                      .selectedCourierRequest
-                                      .value;
+                                  final invoice =
+                                      InvoiceData.cameraSpeedGovernor(
+                                        homeController,
+                                      );
                                   homeController.isAllocating.value = true;
                                   try {
                                     final apiService = ApiService();
@@ -258,7 +260,7 @@ class AllocationPreviewView extends StatelessWidget {
                                     if (success) {
                                       Get.offAll(
                                         () => AllocationSuccessScreen(
-                                          request: allocatedRequest,
+                                          invoice: invoice,
                                         ),
                                       );
                                     } else {

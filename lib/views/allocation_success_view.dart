@@ -3,17 +3,17 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../bindings/home_binding.dart';
 import '../controllers/home_controller.dart';
-import '../models/courier_requests_response.dart';
+import '../models/invoice_data.dart';
 import '../utils/app_colors.dart';
-import '../utils/invoice_helper.dart';
+import '../utils/invoice_pdf.dart';
 import 'home_view.dart';
+import 'invoice_view.dart';
 
 class AllocationSuccessScreen extends StatelessWidget {
-  /// The courier request that was just allocated; its `invoice` file is
-  /// what "Download Invoice" opens. Null for allocations without a request.
-  final CourierRequest? request;
+  /// Invoice for the allocation that just succeeded, built by the caller.
+  final InvoiceData? invoice;
 
-  const AllocationSuccessScreen({super.key, this.request});
+  const AllocationSuccessScreen({super.key, this.invoice});
 
   void _goToMainMenu() {
     if (Get.isRegistered<HomeController>()) {
@@ -123,13 +123,14 @@ class AllocationSuccessScreen extends StatelessWidget {
                   ),
                   child: Column(
                     children: [
-                      if (InvoiceHelper.hasInvoice(request)) ...[
+                      if (invoice != null) ...[
                         Row(
                           children: [
                             Expanded(
                               child: _whiteButton(
                                 label: "Download Invoice",
-                                onPressed: () => InvoiceHelper.open(request),
+                                onPressed: () =>
+                                    Get.to(() => InvoiceView(data: invoice!)),
                               ),
                             ),
                             const SizedBox(width: 12),
@@ -138,7 +139,7 @@ class AllocationSuccessScreen extends StatelessWidget {
                               height: 60,
                               child: _whiteButton(
                                 icon: Icons.share,
-                                onPressed: () => InvoiceHelper.share(request),
+                                onPressed: () => InvoicePdf.share(invoice!),
                               ),
                             ),
                           ],
